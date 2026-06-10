@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Playmaker Sports Foundation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #0D1B2A;
+      --navy2:  #152236;
+      --green:  #3DDC84;
+      --gold:   #F5A623;
+      --white:  #F8F9FA;
+      --gray:   #6B7A8D;
+      --light:  #EFF2F6;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--white);
+      color: var(--navy);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(13, 27, 42, 0.96);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%;
+      height: 68px;
+    }
+    .nav-logo {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--white);
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo span { color: var(--green); }
+    .nav-logo-mark {
+      width: 32px; height: 32px;
+      background: var(--green);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-logo-mark svg { width: 18px; height: 18px; }
+    .nav-links {
+      display: flex; gap: 32px; list-style: none;
+    }
+    .nav-links a {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(248,249,250,0.75);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--green); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      background: var(--navy);
+      display: flex; align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 100px 5% 80px;
+    }
+    /* Diagonal slash — the signature element */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -10%; right: -5%;
+      width: 55%; height: 130%;
+      background: linear-gradient(135deg, var(--green) 0%, #27a862 100%);
+      clip-path: polygon(18% 0%, 100% 0%, 100% 100%, 0% 100%);
+      opacity: 0.12;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at 20% 60%, rgba(61,220,132,0.06) 0%, transparent 60%);
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 720px;
+    }
+    .hero-eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 32px; height: 2px;
+      background: var(--green);
+    }
+    .hero h1 {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(3rem, 6.5vw, 5.5rem);
+      font-weight: 700;
+      line-height: 1.0;
+      color: var(--white);
+      letter-spacing: 0.01em;
+      margin-bottom: 28px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--green);
+    }
+    .hero-tagline {
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: rgba(248,249,250,0.65);
+      margin-bottom: 44px;
+      max-width: 520px;
+      letter-spacing: 0.01em;
+    }
+    .hero-tagline strong {
+      color: rgba(248,249,250,0.9);
+      font-weight: 500;
+    }
+    .hero-cta {
+      display: flex; gap: 14px; flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-block;
+      background: var(--green);
+      color: var(--navy);
+      font-family: 'Oswald', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 14px 32px;
+      border-radius: 3px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: #4aeaa0; transform: translateY(-1px); }
+    .btn-outline {
+      display: inline-block;
+      border: 1.5px solid rgba(248,249,250,0.3);
+      color: var(--white);
+      font-family: 'Oswald', sans-serif;
+      font-weight: 500;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 14px 32px;
+      border-radius: 3px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--green); color: var(--green); }
+
+    .hero-stat-row {
+      position: absolute; bottom: 52px; left: 5%; right: 5%; z-index: 2;
+      display: flex; gap: 48px;
+    }
+    .hero-stat {
+      display: flex; flex-direction: column;
+    }
+    .hero-stat-num {
+      font-family: 'Oswald', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1;
+    }
+    .hero-stat-num span { color: var(--green); }
+    .hero-stat-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(248,249,250,0.45);
+      margin-top: 4px;
+    }
+
+    /* SECTION COMMON */
+    section { padding: 96px 5%; }
+    .section-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--navy);
+      margin-bottom: 20px;
+    }
+    .section-sub {
+      font-size: 1rem;
+      color: var(--gray);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    /* ABOUT */
+    .about {
+      background: var(--white);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .about-left {}
+    .about-right {
+      background: var(--light);
+      border-radius: 6px;
+      padding: 48px;
+      border-left: 4px solid var(--green);
+    }
+    .about-right h3 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 16px;
+    }
+    .about-right p {
+      font-size: 0.97rem;
+      color: var(--gray);
+      line-height: 1.75;
+      margin-bottom: 28px;
+    }
+    .about-right p:last-child { margin-bottom: 0; }
+    .vision-block {
+      background: var(--navy);
+      border-radius: 4px;
+      padding: 28px 32px;
+      margin-top: 28px;
+    }
+    .vision-block p {
+      font-size: 0.95rem;
+      color: rgba(248,249,250,0.8);
+      line-height: 1.7;
+      font-style: italic;
+      margin-bottom: 0;
+    }
+    .vision-block cite {
+      font-style: normal;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--green);
+      display: block;
+      margin-top: 12px;
+    }
+
+    /* PROGRAMS */
+    .programs { background: var(--light); }
+    .programs-header { max-width: 640px; margin-bottom: 56px; }
+    .programs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .program-card {
+      background: var(--white);
+      border-radius: 6px;
+      padding: 36px 32px;
+      border-top: 3px solid transparent;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .program-card:hover {
+      border-color: var(--green);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(13,27,42,0.1);
+    }
+    .program-icon {
+      width: 44px; height: 44px;
+      background: rgba(61,220,132,0.12);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+    }
+    .program-card h3 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+    .program-card p {
+      font-size: 0.9rem;
+      color: var(--gray);
+      line-height: 1.7;
+    }
+
+    /* VALUES */
+    .values { background: var(--navy); }
+    .values .section-title { color: var(--white); }
+    .values .section-sub { color: rgba(248,249,250,0.55); }
+    .values-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 48px;
+    }
+    .value-pill {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      padding: 14px 24px;
+      flex: 1 1 140px;
+    }
+    .value-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+    .value-label {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 500;
+      font-size: 1rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+
+    /* BOARD */
+    .board { background: var(--white); }
+    .board-grid {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 48px;
+    }
+    .board-card {
+      flex: 1 1 200px;
+      background: var(--light);
+      border-radius: 6px;
+      padding: 32px 28px;
+      text-align: center;
+    }
+    .board-avatar {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: var(--navy);
+      margin: 0 auto 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--green);
+    }
+    .board-name {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .board-title {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+    }
+
+    /* CTA BAND */
+    .cta-band {
+      background: var(--green);
+      padding: 72px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .cta-band h2 {
+      font-family: 'Oswald', sans-serif;
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 700;
+      color: var(--navy);
+      max-width: 560px;
+      line-height: 1.15;
+    }
+    .cta-band h2 em { font-style: normal; opacity: 0.55; }
+    .btn-dark {
+      display: inline-block;
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Oswald', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 16px 36px;
+      border-radius: 3px;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .btn-dark:hover { background: #1a2e45; }
+
+    /* CONTACT */
+    .contact { background: var(--light); }
+    .contact-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+    .contact-info p {
+      font-size: 0.97rem;
+      color: var(--gray);
+      line-height: 1.75;
+      margin-bottom: 32px;
+    }
+    .contact-detail {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 16px;
+    }
+    .contact-detail-icon {
+      width: 40px; height: 40px;
+      background: var(--navy);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .contact-detail-icon svg { color: var(--green); }
+    .contact-detail-text {
+      font-size: 0.92rem;
+      color: var(--navy);
+      font-weight: 500;
+    }
+    .contact-detail-text a {
+      color: var(--navy);
+      text-decoration: none;
+    }
+    .contact-detail-text a:hover { color: var(--green); }
+    .nonprofit-notice {
+      background: var(--white);
+      border-radius: 6px;
+      padding: 40px;
+      border-left: 4px solid var(--gold);
+    }
+    .nonprofit-notice h3 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--navy);
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nonprofit-notice h3 span {
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 2px;
+    }
+    .nonprofit-notice p {
+      font-size: 0.88rem;
+      color: var(--gray);
+      line-height: 1.75;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--navy2);
+      padding: 48px 5% 36px;
+    }
+    .footer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 40px;
+      flex-wrap: wrap;
+      padding-bottom: 36px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 28px;
+    }
+    .footer-logo {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 0.04em;
+    }
+    .footer-logo span { color: var(--green); }
+    .footer-tagline {
+      font-size: 0.8rem;
+      color: rgba(248,249,250,0.4);
+      margin-top: 6px;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+    .footer-links-col h4 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 14px;
+    }
+    .footer-links-col ul { list-style: none; }
+    .footer-links-col ul li { margin-bottom: 8px; }
+    .footer-links-col ul li a {
+      font-size: 0.85rem;
+      color: rgba(248,249,250,0.55);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links-col ul li a:hover { color: var(--green); }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-copy {
+      font-size: 0.78rem;
+      color: rgba(248,249,250,0.3);
+    }
+    .footer-legal {
+      font-size: 0.78rem;
+      color: rgba(248,249,250,0.3);
+      text-align: right;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 860px) {
+      .about { grid-template-columns: 1fr; gap: 40px; }
+      .contact-inner { grid-template-columns: 1fr; gap: 40px; }
+      .hero-stat-row { position: static; margin-top: 48px; flex-wrap: wrap; }
+      .hero { padding-bottom: 80px; flex-direction: column; }
+      nav .nav-links { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="3,15 9,3 15,15" fill="#0D1B2A" stroke="#0D1B2A" stroke-width="1"/>
+        <circle cx="9" cy="8" r="3" fill="#0D1B2A"/>
+      </svg>
+    </div>
+    PLAYMAKER <span>&nbsp;SPORTS FOUNDATION</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#programs">Programs</a></li>
+    <li><a href="#board">Leadership</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-content">
+    <div class="hero-eyebrow">California Nonprofit · 501(c)(3) Pending</div>
+    <h1>Playmaker<br><em>Sports</em><br>Foundation</h1>
+    <p class="hero-tagline">
+      <strong>Developing Athletes. Empowering Leaders. Expanding Opportunity.</strong><br>
+      Building access to youth sports and personal development for every young athlete, regardless of circumstance.
+    </p>
+    <div class="hero-cta">
+      <a href="#programs" class="btn-primary">Our Programs</a>
+      <a href="#contact" class="btn-outline">Get in Touch</a>
+    </div>
+  </div>
+  <div class="hero-stat-row">
+    <div class="hero-stat">
+      <div class="hero-stat-num">5<span>+</span></div>
+      <div class="hero-stat-label">Active Programs</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">501<span>(c)(3)</span></div>
+      <div class="hero-stat-label">Tax-Exempt Status Pending</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">CA</div>
+      <div class="hero-stat-label">California Nonprofit</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-left">
+    <div class="section-eyebrow">Who We Are</div>
+    <h2 class="section-title">More Than a Game.<br>A Path Forward.</h2>
+    <p class="section-sub">
+      Playmaker Sports Foundation is dedicated to expanding access to youth sports and personal development opportunities through athletic participation, educational programming, scholarships, leadership development, and community-based initiatives.
+    </p>
+    <p class="section-sub" style="margin-top: 16px;">
+      Through soccer and other athletic opportunities, the Foundation empowers young athletes with pathways to compete, learn, grow, and succeed — both on and off the field.
+    </p>
+  </div>
+  <div class="about-right">
+    <h3>Our Mission</h3>
+    <p>
+      Playmaker Sports Foundation is dedicated to expanding access to youth sports and personal development opportunities through athletic participation, educational programming, scholarships, leadership development, and community-based initiatives.
+    </p>
+    <p>
+      The Foundation seeks to empower young athletes by providing pathways to compete, learn, grow, and succeed both on and off the field. Through soccer and other athletic opportunities, we promote character development, teamwork, leadership, sportsmanship, and lifelong success.
+    </p>
+    <div class="vision-block">
+      <p>
+        To create a future where every young athlete has access to meaningful opportunities to participate, develop, compete, and succeed — regardless of financial circumstances.
+      </p>
+      <cite>Our Vision</cite>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRAMS -->
+<section class="programs" id="programs">
+  <div class="programs-header">
+    <div class="section-eyebrow">What We Do</div>
+    <h2 class="section-title">Programs Built for<br>Every Athlete</h2>
+    <p class="section-sub">Each initiative is designed to remove barriers, build character, and create lasting opportunity for youth athletes in our community.</p>
+  </div>
+  <div class="programs-grid">
+    <div class="program-card">
+      <div class="program-icon">🎓</div>
+      <h3>Youth Athlete Scholarship Program</h3>
+      <p>Provides financial assistance to youth athletes and families who may not otherwise have access to athletic participation, training, educational experiences, or competitive events.</p>
+    </div>
+    <div class="program-card">
+      <div class="program-icon">⚽</div>
+      <h3>Community Soccer Clinics</h3>
+      <p>Free and low-cost soccer clinics that promote physical activity, skill development, teamwork, sportsmanship, and meaningful community engagement for all skill levels.</p>
+    </div>
+    <div class="program-card">
+      <div class="program-icon">📋</div>
+      <h3>Coaching Education Initiative</h3>
+      <p>Supports coaches through educational workshops, mentorship opportunities, and leadership development resources that measurably improve the youth sports experience.</p>
+    </div>
+    <div class="program-card">
+      <div class="program-icon">🏅</div>
+      <h3>Leadership Through Sport</h3>
+      <p>Uses athletics as a platform to teach leadership, character development, accountability, teamwork, communication, and essential life skills young people carry beyond the field.</p>
+    </div>
+    <div class="program-card">
+      <div class="program-icon">🎽</div>
+      <h3>Equipment Assistance Program</h3>
+      <p>Provides sports equipment and resources to youth athletes facing financial barriers to participation — because no athlete should sit out due to lack of gear.</p>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+<section class="values" id="values">
+  <div class="section-eyebrow">What Guides Us</div>
+  <h2 class="section-title" style="color: var(--white);">Core Values</h2>
+  <p class="section-sub">These principles are the foundation of every program, partnership, and decision we make.</p>
+  <div class="values-grid">
+    <div class="value-pill"><div class="value-dot"></div><div class="value-label">Access</div></div>
+    <div class="value-pill"><div class="value-dot"></div><div class="value-label">Opportunity</div></div>
+    <div class="value-pill"><div class="value-dot"></div><div class="value-label">Education</div></div>
+    <div class="value-pill"><div class="value-dot"></div><div class="value-label">Leadership</div></div>
+    <div class="value-pill"><div class="value-dot"></div><div class="value-label">Community</div></div>
+    <div class="value-pill"><div class="value-dot"></div><div class="value-label">Sportsmanship</div></div>
+    <div class="value-pill"><div class="value-dot"></div><div class="value-label">Personal Growth</div></div>
+  </div>
+</section>
+
+<!-- BOARD -->
+<section class="board" id="board">
+  <div class="section-eyebrow">Leadership</div>
+  <h2 class="section-title">Board of Directors</h2>
+  <p class="section-sub">Guided by a dedicated leadership team committed to the Foundation's mission and the communities we serve.</p>
+  <div class="board-grid">
+    <div class="board-card">
+      <div class="board-avatar">KK</div>
+      <div class="board-name">Kian Kohan</div>
+      <div class="board-title">President</div>
+    </div>
+    <div class="board-card">
+      <div class="board-avatar">CK</div>
+      <div class="board-name">Cameron Kohan</div>
+      <div class="board-title">Vice President</div>
+    </div>
+    <div class="board-card">
+      <div class="board-avatar">GS</div>
+      <div class="board-name">Gage Snook</div>
+      <div class="board-title">Secretary &amp; Treasurer</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <h2>Support Our Mission. <em>Every athlete deserves a chance to compete.</em></h2>
+  <a href="mailto:info@playmakersportsfoundation.org" class="btn-dark">Support Our Mission</a>
+</div>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="contact-inner">
+    <div class="contact-info">
+      <div class="section-eyebrow">Reach Out</div>
+      <h2 class="section-title">Get Involved</h2>
+      <p>
+        Playmaker Sports Foundation is committed to helping young athletes reach their potential through access, education, leadership, and opportunity. We welcome inquiries about programs, partnerships, and community initiatives.
+      </p>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <div class="contact-detail-text">
+          <a href="mailto:info@playmakersportsfoundation.org">info@playmakersportsfoundation.org</a>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3DDC84" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
+        <div class="contact-detail-text">California Nonprofit Public Benefit Corporation</div>
+      </div>
+    </div>
+    <div class="nonprofit-notice">
+      <h3>Tax-Exempt Status <span>Pending</span></h3>
+      <p>
+        Playmaker Sports Foundation is currently in the process of applying for federal tax-exempt status under Section 501(c)(3) of the Internal Revenue Code. The Foundation exists exclusively for charitable and educational purposes in support of youth athlete development.
+      </p>
+      <p style="margin-top: 16px;">
+        The Foundation supports youth athlete development through scholarships, community programming, coaching education, leadership initiatives, and access to athletic opportunities. Questions about our programs or how to get involved may be directed to our team at the email above.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-logo">PLAYMAKER <span>SPORTS FOUNDATION</span></div>
+      <div class="footer-tagline">Developing Athletes. Empowering Leaders. Expanding Opportunity.</div>
+    </div>
+    <div class="footer-links-col">
+      <h4>Organization</h4>
+      <ul>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#programs">Programs</a></li>
+        <li><a href="#board">Board of Directors</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-links-col">
+      <h4>Programs</h4>
+      <ul>
+        <li><a href="#programs">Scholarship Program</a></li>
+        <li><a href="#programs">Soccer Clinics</a></li>
+        <li><a href="#programs">Coaching Education</a></li>
+        <li><a href="#programs">Leadership Through Sport</a></li>
+        <li><a href="#programs">Equipment Assistance</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 Playmaker Sports Foundation. All rights reserved.</div>
+    <div class="footer-legal">
+      California Nonprofit Public Benefit Corporation · 501(c)(3) Status Pending<br>
+      An affiliate of Playmaker Sports LLC
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
