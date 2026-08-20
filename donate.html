@@ -36,13 +36,18 @@
     .section-eyebrow::before { content: ''; display: block; width: 20px; height: 1px; background: var(--gold); }
     .section-title { font-family: 'Oswald', sans-serif; font-size: clamp(2rem, 3.5vw, 2.8rem); font-weight: 700; line-height: 1.1; color: var(--white); margin-bottom: 20px; }
     .section-sub { font-size: 0.97rem; color: var(--gray); max-width: 560px; line-height: 1.75; }
-    .page-hero { padding: 160px 5% 80px; background: var(--black); border-bottom: 1px solid rgba(201,168,76,0.1); position: relative; overflow: hidden; }
-    .page-hero::after { content: ''; position: absolute; right: 5%; top: 50%; transform: translateY(-50%); width: 300px; height: 300px; border: 1px solid rgba(201,168,76,0.06); clip-path: polygon(50% 0%, 100% 100%, 0% 100%); pointer-events: none; }
+    .donate-top-hero { min-height: 100vh; background: var(--black); display: flex; align-items: center; padding: 120px 5% 80px; position: relative; overflow: hidden; }
+    .donate-top-hero::after { content: ''; position: absolute; right: 5%; top: 50%; transform: translateY(-50%); width: 400px; height: 400px; border: 1px solid rgba(201,168,76,0.06); clip-path: polygon(50% 0%, 100% 100%, 0% 100%); pointer-events: none; }
+    .donate-top-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; width: 100%; position: relative; z-index: 2; }
+    .donate-top-left .page-hero-eyebrow { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .donate-top-left .page-hero-eyebrow::before { content: ''; display: block; width: 20px; height: 1px; background: var(--gold); }
+    .donate-top-left h1 { font-family: 'Oswald', sans-serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 700; line-height: 1.0; color: var(--white); margin-bottom: 20px; }
+    .donate-top-left h1 em { font-style: normal; background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .donate-top-left p { font-size: 1rem; color: var(--gray); line-height: 1.75; max-width: 480px; }
+    .page-hero { display: none; }
     .page-hero-eyebrow { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
     .page-hero-eyebrow::before { content: ''; display: block; width: 20px; height: 1px; background: var(--gold); }
-    .page-hero h1 { font-family: 'Oswald', sans-serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 700; line-height: 1.0; color: var(--white); max-width: 700px; }
-    .page-hero h1 em { font-style: normal; background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .page-hero p { font-size: 1rem; color: var(--gray); margin-top: 20px; max-width: 560px; line-height: 1.75; }
+    @media(max-width:860px){ .donate-top-inner{grid-template-columns:1fr;gap:40px;} }
     footer { background: #050505; border-top: 1px solid rgba(201,168,76,0.15); padding: 52px 5% 36px; }
     .footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; flex-wrap: wrap; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 28px; }
     .footer-brand { display: flex; align-items: center; gap: 14px; }
@@ -102,14 +107,13 @@
   <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="programs.html">Programs</a></li><li><a href="donate.html" class="nav-donate">Donate</a></li><li><a href="contact.html">Contact</a></li></ul>
 </nav>
 
-<div class="page-hero">
-  <div class="page-hero-eyebrow">Support the Mission</div>
-  <h1>Make a <em>Difference</em></h1>
-  <p>Every contribution directly funds scholarships, free clinics, equipment, and leadership programs for youth athletes across Greater Southern California.</p>
-</div>
-
-<section class="donate-hero-section">
-  <div class="donate-grid">
+<div class="donate-top-hero">
+  <div class="donate-top-inner">
+    <div class="donate-top-left">
+      <div class="page-hero-eyebrow">Support the Mission</div>
+      <h1>Make a <em>Difference</em></h1>
+      <p>Every contribution directly funds scholarships, free clinics, equipment, and leadership programs for youth athletes across Greater Southern California.</p>
+    </div>
     <div class="donate-main-box">
       <h3>Donate Online</h3>
       <p>Your secure donation goes directly toward expanding access to youth sports for athletes who need it most. Playmaker Sports Foundation is a 501(c)(3) tax-exempt organization — your gift is tax-deductible.</p>
@@ -126,7 +130,11 @@
         <div class="impact-card"><div class="impact-amount">$250</div></div>
       </div>
     </div>
+  </div>
+</div>
 
+<section class="donate-hero-section">
+  <div class="donate-grid" style="grid-template-columns:1fr;">
     <div class="donate-info">
       <h3>Why Your Gift Matters</h3>
       <p>Across Greater Southern California, thousands of young athletes are unable to participate in organized sports due to rising costs. Registration fees, equipment, travel, and training expenses have made youth sports increasingly inaccessible to families facing financial hardship.</p>
