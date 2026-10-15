@@ -27,6 +27,8 @@
     .nav-links a.active { border-bottom: 1px solid var(--gold); padding-bottom: 2px; }
     .nav-donate { background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); color: var(--black) !important; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; padding: 9px 20px; border-radius: 2px; transition: opacity 0.2s !important; border-bottom: none !important; }
     .nav-donate:hover { opacity: 0.85; }
+    .nav-register { background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); color: var(--black) !important; font-family: 'Oswald', sans-serif; font-weight: 700 !important; padding: 9px 18px; border-radius: 2px; border-bottom: none !important; }
+    .nav-register:hover { opacity: 0.88; }
     .btn-gold { display: inline-block; background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); color: var(--black); font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 0.88rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; padding: 14px 32px; border-radius: 2px; transition: opacity 0.2s, transform 0.15s; cursor: pointer; border: none; }
     .btn-gold:hover { opacity: 0.9; transform: translateY(-1px); }
     .btn-outline { display: inline-block; border: 1px solid rgba(201,168,76,0.4); color: var(--gold2); font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 0.88rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; padding: 14px 32px; border-radius: 2px; transition: border-color 0.2s, background 0.2s; }
@@ -44,21 +46,22 @@
     .page-hero h1 em { font-style: normal; background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .page-hero p { font-size: 1rem; color: var(--gray); margin-top: 20px; max-width: 560px; line-height: 1.75; }
     footer { background: #050505; border-top: 1px solid rgba(201,168,76,0.15); padding: 52px 5% 36px; }
-    .footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; flex-wrap: wrap; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 28px; }
+    .footer-top { display: grid; grid-template-columns: 1.1fr 1fr 1.4fr; align-items: start; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 28px; }
     .footer-brand { display: flex; align-items: center; gap: 14px; }
     .footer-brand img { width: 44px; height: 44px; object-fit: contain; }
     .footer-logo-top { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 0.95rem; letter-spacing: 0.1em; color: var(--gold2); text-transform: uppercase; }
     .footer-logo-bottom { font-size: 0.7rem; color: rgba(248,248,248,0.3); letter-spacing: 0.06em; }
     .footer-tagline { font-size: 0.78rem; color: rgba(248,248,248,0.3); margin-top: 10px; max-width: 260px; line-height: 1.6; }
     .footer-links-col h4 { font-family: 'Oswald', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
-    .footer-links-col ul { list-style: none; }
+    .footer-links-col ul { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(110px, 1fr)); column-gap: 24px; }
     .footer-links-col ul li { margin-bottom: 10px; }
     .footer-links-col ul li a { font-size: 0.84rem; color: rgba(248,248,248,0.4); text-decoration: none; transition: color 0.2s; }
     .footer-links-col ul li a:hover { color: var(--gold2); }
     .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
     .footer-copy { font-size: 0.76rem; color: rgba(248,248,248,0.2); }
     .footer-legal { font-size: 0.76rem; color: rgba(248,248,248,0.2); text-align: right; }
-    @media (max-width: 860px) { nav .nav-links { display: none; } }
+    @media (max-width: 900px) { nav .nav-links { display: none; } .footer-top { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .footer-top { grid-template-columns: 1fr; } }
 
     .programs-section { background: var(--black2); }
     .program-full { background: var(--black3); border-radius: 4px; padding: 52px; margin-bottom: 3px; border-left: 3px solid transparent; transition: border-color 0.2s; display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: start; }
@@ -69,17 +72,6 @@
     .program-tag { display: inline-block; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(201,168,76,0.25); padding: 4px 10px; border-radius: 2px; margin-bottom: 12px; }
     @media(max-width:700px){ .program-full{grid-template-columns:1fr;gap:20px;padding:32px 24px;} }
 
-    .events-section { background: var(--black); padding: 100px 5%; }
-    .event-card { background: var(--black3); border: 1px solid rgba(201,168,76,0.2); border-radius: 4px; padding: 48px; display: grid; grid-template-columns: auto 1fr auto; gap: 40px; align-items: center; margin-top: 40px; }
-    .event-date-block { text-align: center; background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); border-radius: 4px; padding: 16px 24px; flex-shrink: 0; }
-    .event-date-month { font-family: 'Oswald', sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--black); }
-    .event-date-day { font-family: 'Oswald', sans-serif; font-size: 2.8rem; font-weight: 700; color: var(--black); line-height: 1; }
-    .event-card h3 { font-family: 'Oswald', sans-serif; font-size: 1.4rem; font-weight: 600; color: var(--white); margin-bottom: 12px; }
-    .event-card p { font-size: 0.9rem; color: var(--gray); line-height: 1.75; margin-bottom: 16px; }
-    .event-meta { display: flex; flex-wrap: wrap; gap: 16px; }
-    .event-meta-item { font-size: 0.83rem; color: rgba(248,248,248,0.6); display: flex; align-items: center; gap: 6px; }
-    .event-free-badge { background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); color: var(--black); font-family: 'Oswald', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; padding: 4px 10px; border-radius: 2px; display: inline-block; margin-bottom: 8px; }
-    @media(max-width:760px){ .event-card{grid-template-columns:1fr;gap:24px;} }
 </style>
 </head>
 <body>
@@ -92,7 +84,7 @@
       <div class="nav-logo-bottom">Foundation</div>
     </div>
   </a>
-  <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="programs.html" class="active">Programs</a></li><li><a href="donate.html" class="nav-donate">Donate</a></li><li><a href="contact.html">Contact</a></li></ul>
+  <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="programs.html" class="active">Programs</a></li><li><a href="donate.html">Donate</a></li><li><a href="contact.html">Contact</a></li></ul>
 </nav>
 
 <div class="page-hero">
@@ -120,33 +112,6 @@
   <div class="program-full">
     <div class="program-full-icon">🎽</div>
     <div><div class="program-tag">Access</div><h3>Equipment Assistance Program</h3><p>Provides sports equipment and resources to youth athletes facing financial barriers to participation. No young athlete should be unable to play because they cannot afford cleats, a uniform, protective gear, or other essential equipment. The Foundation collects, refurbishes, and distributes equipment directly to athletes and families in need — ensuring that cost is never the reason a young person sits on the sidelines.</p></div>
-  </div>
-</section>
-
-<section class="events-section">
-  <div class="section-eyebrow">Upcoming Events</div>
-  <h2 class="section-title">Community Events</h2>
-  <p class="section-sub">Join us at our upcoming clinics and community programs open to youth athletes across Southern California.</p>
-  <div class="event-card">
-    <div class="event-date-block">
-      <div class="event-date-month">Sep</div>
-      <div class="event-date-day">18</div>
-    </div>
-    <div>
-      <div class="event-free-badge">FREE EVENT</div>
-      <h3>Youth Soccer Clinic — Moorpark, CA</h3>
-      <p>Our first FREE Youth Soccer Clinic for boys and girls ages 6–12. Players will spend an hour learning soccer skills, playing fun games, and enjoying the game with a USSF Licensed Coach. All experience levels welcome — fun, welcoming, and a great way to get on the field!</p>
-      <div class="event-meta">
-        <div class="event-meta-item">📅 Friday, September 18</div>
-        <div class="event-meta-item">⏰ 4:30–5:30 PM</div>
-        <div class="event-meta-item">📍 Arroyo Vista Park, Moorpark, CA</div>
-        <div class="event-meta-item">👧🧒 Ages 6–12 | Boys & Girls</div>
-      </div>
-    </div>
-    <div style="text-align:center;flex-shrink:0;">
-      <a href="https://docs.google.com/forms/d/17RR1HzIg1xR30z2vdWVPstsZBzceEahJjY1x0_tEShU/viewform" target="_blank" rel="noopener" class="btn-gold">Reserve Your Spot</a>
-      <p style="font-size:0.72rem;color:rgba(248,248,248,0.3);margin-top:10px;">Space is limited</p>
-    </div>
   </div>
 </section>
 

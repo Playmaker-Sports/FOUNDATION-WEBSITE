@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Soccer Clinic Registration | Playmaker Sports Foundation</title>
+  <meta name="description" content="Register your child for the free Playmaker Sports Foundation youth soccer clinic in Moorpark, California." />
+  <link rel="icon" type="image/png" href="Foundation_Logo_1.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #0a0a0a;
+      --black-2: #111111;
+      --black-3: #1a1a1a;
+      --gold: #c9a84c;
+      --gold-2: #e8c86a;
+      --gold-3: #f5e0a0;
+      --white: #f8f8f8;
+      --gray: #c7c7c7;
+      --error: #ff9a8d;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--black); color: var(--white); line-height: 1.6; }
+    a { color: inherit; }
+    nav { position: fixed; inset: 0 0 auto; z-index: 100; height: 72px; padding: 0 5%; display: flex; align-items: center; justify-content: space-between; background: rgba(10,10,10,.97); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(201,168,76,.2); }
+    .nav-logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+    .nav-logo img { width: 48px; height: 48px; object-fit: contain; }
+    .nav-logo-top { font: 700 1rem 'Oswald', sans-serif; letter-spacing: .12em; color: var(--gold-2); text-transform: uppercase; }
+    .nav-logo-bottom { font: 400 .7rem 'Oswald', sans-serif; letter-spacing: .2em; color: rgba(248,248,248,.5); text-transform: uppercase; }
+    .nav-links { display: flex; gap: 26px; align-items: center; list-style: none; }
+    .nav-links a { color: rgba(248,248,248,.78); font-size: .76rem; font-weight: 500; letter-spacing: .1em; text-decoration: none; text-transform: uppercase; transition: color .2s ease; }
+    .nav-links a:hover { color: var(--gold-2); }
+    .nav-links .nav-register { padding: 9px 18px; color: var(--black); background: linear-gradient(135deg,var(--gold),var(--gold-2)); border-radius: 2px; font-family: 'Oswald', sans-serif; font-weight: 700; }
+    .nav-links .nav-register:hover { color: var(--black); opacity: .88; }
+
+    .registration-hero { position: relative; min-height: 430px; padding: 142px 5% 74px; overflow: hidden; border-bottom: 1px solid rgba(201,168,76,.16); background: radial-gradient(circle at 78% 35%,rgba(201,168,76,.12),transparent 34%),var(--black); }
+    .registration-hero::after { content: ''; position: absolute; right: 7%; top: 48%; width: 330px; height: 330px; transform: translateY(-50%); border: 1px solid rgba(201,168,76,.1); clip-path: polygon(50% 0,100% 100%,0 100%); }
+    .hero-copy { position: relative; z-index: 1; max-width: 760px; animation: rise-in .65s ease-out both; }
+    .event-kicker { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 18px; color: var(--gold-2); font-size: .7rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+    .event-kicker::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--gold-2); box-shadow: 0 0 0 0 rgba(232,200,106,.5); animation: pulse 2s infinite; }
+    .registration-hero h1 { max-width: 680px; font: 700 clamp(2.7rem,6vw,5rem)/.98 'Oswald', sans-serif; }
+    .registration-hero h1 em { color: var(--gold-2); font-style: normal; }
+    .registration-hero p { max-width: 600px; margin-top: 22px; color: var(--gray); font-size: 1rem; line-height: 1.75; }
+
+    .registration-layout { display: grid; grid-template-columns: minmax(250px,360px) minmax(0,720px); justify-content: center; gap: clamp(40px,7vw,92px); padding: 88px 5% 110px; background: var(--black-2); }
+    .event-summary { align-self: start; position: sticky; top: 110px; }
+    .summary-eyebrow { color: var(--gold); font-size: .68rem; font-weight: 700; letter-spacing: .19em; text-transform: uppercase; }
+    .event-summary h2 { margin: 14px 0 14px; font: 700 clamp(1.8rem,3vw,2.5rem)/1.08 'Oswald', sans-serif; }
+    .event-summary > p { color: var(--gray); font-size: .92rem; line-height: 1.75; }
+    .event-facts { margin-top: 34px; border-top: 1px solid rgba(201,168,76,.22); }
+    .event-fact { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 17px 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .event-fact svg { margin-top: 2px; color: var(--gold-2); }
+    .event-fact small { display: block; color: rgba(248,248,248,.62); font-size: .62rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .event-fact strong { display: block; margin-top: 2px; font-size: .9rem; font-weight: 500; }
+    .free-line { margin-top: 24px; color: var(--gold-2); font: 700 1.15rem 'Oswald', sans-serif; letter-spacing: .04em; }
+
+    .registration-form-wrap { min-width: 0; }
+    .form-heading { margin-bottom: 34px; }
+    .form-heading span { color: var(--gold); font-size: .68rem; font-weight: 700; letter-spacing: .19em; text-transform: uppercase; }
+    .form-heading h2 { margin-top: 10px; font: 700 clamp(2rem,4vw,3rem)/1.06 'Oswald', sans-serif; }
+    .form-heading p { margin-top: 12px; color: var(--gray); font-size: .9rem; }
+    .required-note { color: rgba(248,248,248,.68); font-size: .72rem; }
+    .required-note b { color: var(--gold-2); }
+    .form-section { padding: 30px 0; border-top: 1px solid rgba(201,168,76,.16); }
+    .form-section h3 { margin-bottom: 20px; font: 600 1.1rem 'Oswald', sans-serif; letter-spacing: .04em; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .field { display: grid; gap: 8px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { color: rgba(248,248,248,.92); font-size: .75rem; font-weight: 600; letter-spacing: .06em; }
+    .field label span { color: var(--gold-2); }
+    .field input,.field select { width: 100%; min-height: 50px; padding: 12px 14px; border: 1px solid rgba(201,168,76,.38); border-radius: 2px; outline: none; color: #ffffff; background: #1b1b1b; font: 400 .95rem 'Inter', sans-serif; transition: border-color .2s,background .2s,box-shadow .2s; }
+    .field select { color-scheme: dark; cursor: pointer; }
+    .field select option { color: #111111; background: #ffffff; }
+    .field select option:disabled { color: #666666; }
+    .field input::placeholder { color: rgba(248,248,248,.58); }
+    .field input:focus,.field select:focus { border-color: var(--gold); background: rgba(201,168,76,.04); box-shadow: 0 0 0 3px rgba(201,168,76,.08); }
+    .field input:invalid:not(:placeholder-shown) { border-color: rgba(255,154,141,.65); }
+    .consent { padding: 24px; border-left: 2px solid var(--gold); background: rgba(201,168,76,.055); }
+    .consent h3 { margin-bottom: 12px; font: 600 1.05rem 'Oswald', sans-serif; }
+    .consent p { margin-top: 10px; color: rgba(248,248,248,.78); font-size: .79rem; line-height: 1.7; }
+    .consent-check { display: flex; align-items: flex-start; gap: 12px; margin-top: 22px; cursor: pointer; }
+    .consent-check input { width: 20px; height: 20px; margin-top: 2px; flex: 0 0 auto; accent-color: var(--gold); }
+    .consent-check span { color: var(--white); font-size: .86rem; font-weight: 600; }
+    .form-actions { margin-top: 30px; }
+    .submit-button { width: 100%; min-height: 56px; border: 0; border-radius: 2px; color: var(--black); background: linear-gradient(135deg,var(--gold),var(--gold-2)); cursor: pointer; font: 700 .94rem 'Oswald', sans-serif; letter-spacing: .12em; text-transform: uppercase; transition: transform .18s ease,opacity .18s ease,box-shadow .18s ease; }
+    .submit-button:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(201,168,76,.16); }
+    .submit-button:disabled { cursor: wait; opacity: .6; transform: none; }
+    .privacy-note { margin-top: 14px; color: rgba(248,248,248,.65); font-size: .7rem; line-height: 1.55; text-align: center; }
+    .privacy-note a { color: var(--gold-2); }
+    .form-error { display: none; margin-top: 18px; padding: 14px 16px; border-left: 2px solid var(--error); color: var(--error); background: rgba(255,154,141,.07); font-size: .82rem; }
+    .form-error.is-visible { display: block; }
+    .honeypot { position: absolute !important; left: -10000px !important; width: 1px !important; height: 1px !important; overflow: hidden !important; }
+    #registration-response { display: none; }
+    .success-state { display: none; padding: 54px 40px; border-top: 2px solid var(--gold); background: var(--black-3); text-align: center; animation: rise-in .45s ease-out both; }
+    .success-state.is-visible { display: block; }
+    .success-mark { display: grid; place-items: center; width: 58px; height: 58px; margin: 0 auto 22px; border: 1px solid var(--gold); border-radius: 50%; color: var(--gold-2); font-size: 1.5rem; }
+    .success-state h2 { font: 700 2rem 'Oswald', sans-serif; }
+    .success-state p { max-width: 470px; margin: 12px auto 0; color: var(--gray); }
+    .success-state a { display: inline-block; margin-top: 26px; color: var(--gold-2); font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+
+    footer { padding: 34px 5%; border-top: 1px solid rgba(201,168,76,.14); background: #050505; }
+    .footer-row { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .footer-brand { color: var(--gold-2); font: 700 .85rem 'Oswald',sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+    .footer-copy { color: rgba(248,248,248,.28); font-size: .72rem; }
+
+    @keyframes rise-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 70% { box-shadow: 0 0 0 9px rgba(232,200,106,0); } 100% { box-shadow: 0 0 0 0 rgba(232,200,106,0); } }
+    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+    @media (max-width: 900px) {
+      nav .nav-links { display: none; }
+      .registration-hero::after { opacity: .5; right: -130px; }
+      .registration-layout { grid-template-columns: 1fr; padding-top: 62px; }
+      .event-summary { position: static; }
+      .event-facts { display: grid; grid-template-columns: 1fr 1fr; }
+      .event-fact:nth-child(odd) { padding-right: 18px; }
+    }
+    @media (max-width: 620px) {
+      .registration-hero { min-height: 390px; padding-top: 128px; }
+      .registration-layout { padding-bottom: 72px; }
+      .form-grid,.event-facts { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .event-fact:nth-child(odd) { padding-right: 0; }
+      .consent { padding: 22px 18px; }
+      .success-state { padding: 44px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html" class="nav-logo" aria-label="Playmaker Sports Foundation home">
+      <img src="Foundation_Logo_1.png" alt="" />
+      <div><div class="nav-logo-top">Playmaker Sports</div><div class="nav-logo-bottom">Foundation</div></div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="programs.html">Programs</a></li>
+      <li><a href="registration.html" class="nav-register" aria-current="page">Register</a></li>
+      <li><a href="donate.html">Donate</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <header class="registration-hero">
+      <div class="hero-copy">
+        <div class="event-kicker">Registration open · Free clinic</div>
+        <h1>Come play.<br><em>Come learn.</em></h1>
+        <p>Reserve your child’s place at our free youth soccer clinic in Moorpark. All skill levels are welcome, and it takes only a few minutes to register.</p>
+      </div>
+    </header>
+
+    <section class="registration-layout" aria-labelledby="registration-title">
+      <aside class="event-summary" aria-label="Clinic details">
+        <div class="summary-eyebrow">Your next session</div>
+        <h2>Youth Soccer Clinic</h2>
+        <p>One welcoming hour of soccer skills, fun games, and guided play with a USSF Licensed Coach.</p>
+        <div class="event-facts">
+          <div class="event-fact">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+            <div><small>Date</small><strong>Friday, September 18</strong></div>
+          </div>
+          <div class="event-fact">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            <div><small>Time</small><strong>4:30–5:30 PM</strong></div>
+          </div>
+          <div class="event-fact">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <div><small>Location</small><strong>Arroyo Vista Park<br>Moorpark, CA</strong></div>
+          </div>
+          <div class="event-fact">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2"/><path d="M3 20c0-4 2.7-7 6-7s6 3 6 7M15 15c3 0 5 2 5 5"/></svg>
+            <div><small>Players</small><strong>Ages 6–12<br>Boys &amp; Girls</strong></div>
+          </div>
+        </div>
+        <div class="free-line">Free for every participant.</div>
+      </aside>
+
+      <div class="registration-form-wrap">
+        <div class="form-heading">
+          <span>Reserve a spot</span>
+          <h2 id="registration-title">Player registration</h2>
+          <p>Complete the details below. Fields marked <span class="required-note"><b>*</b> are required</span>.</p>
+        </div>
+
+        <form id="registration-form" action="https://playmakersportsapp-api.onrender.com/api/foundation/registrations" method="POST">
+          <div class="form-section">
+            <h3>Player information</h3>
+            <div class="form-grid">
+              <div class="field">
+                <label for="child-first">Child’s first name <span>*</span></label>
+                <input id="child-first" name="child_first_name" type="text" autocomplete="given-name" placeholder="First name" required />
+              </div>
+              <div class="field">
+                <label for="child-last">Child’s last name</label>
+                <input id="child-last" name="child_last_name" type="text" autocomplete="family-name" placeholder="Last name" />
+              </div>
+              <div class="field">
+                <label for="child-dob">Child’s date of birth <span>*</span></label>
+                <input id="child-dob" name="child_date_of_birth" type="date" required />
+              </div>
+              <div class="field">
+                <label for="child-gender">Child’s gender <span>*</span></label>
+                <select id="child-gender" name="child_gender" required>
+                  <option value="">Select gender</option>
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Parent or guardian</h3>
+            <div class="form-grid">
+              <div class="field">
+                <label for="guardian-first">First name <span>*</span></label>
+                <input id="guardian-first" name="guardian_first_name" type="text" autocomplete="given-name" placeholder="First name" required />
+              </div>
+              <div class="field">
+                <label for="guardian-last">Last name <span>*</span></label>
+                <input id="guardian-last" name="guardian_last_name" type="text" autocomplete="family-name" placeholder="Last name" required />
+              </div>
+              <div class="field full">
+                <label for="guardian-email">Email address <span>*</span></label>
+                <input id="guardian-email" name="guardian_email" type="email" autocomplete="email" placeholder="you@example.com" required />
+              </div>
+              <div class="field full">
+                <label for="home-address">Home address <span>*</span></label>
+                <input id="home-address" name="home_address" type="text" autocomplete="street-address" placeholder="Street address, city, state, ZIP" required />
+              </div>
+              <div class="field full">
+                <label for="phone">Phone number <span>*</span></label>
+                <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(555) 555-5555" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="consent">
+              <h3>Participation &amp; photo/video consent</h3>
+              <p>By electronically signing below, I acknowledge and agree that participation in the Playmaker Sports Foundation Youth Soccer Clinic involves inherent risks, including the possibility of injury. I understand that soccer and physical activity involve risks of injury even when appropriate safety measures are taken. I voluntarily accept these risks on behalf of myself and my child and agree to follow all rules and instructions provided by the coaches and event organizers.</p>
+              <p>I understand that Playmaker Sports Foundation maintains insurance coverage for the event; however, the existence of insurance does not eliminate the inherent risks associated with participation.</p>
+              <p>I also understand and agree that photographs and/or video may be taken during the clinic. By signing below, I grant Playmaker Sports Foundation permission to use photographs and video of my child taken during the event for legitimate organizational purposes, including social media, website, promotional materials, and future marketing, without compensation.</p>
+              <p>By electronically signing below, I confirm that I have read, understood, and agree to the above terms.</p>
+              <label class="consent-check" for="consent">
+                <input id="consent" name="consent" type="checkbox" required />
+                <span>I have read and agree to the participation and photo/video consent terms. *</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="honeypot" aria-hidden="true"><label for="website">Leave this field empty</label><input id="website" name="_honey" type="text" tabindex="-1" autocomplete="off" /></div>
+          <div class="form-actions">
+            <button class="submit-button" type="submit">Complete free registration</button>
+            <p class="privacy-note">Your registration is sent securely to Playmaker Sports Foundation and stored in its private registration spreadsheet. Questions? <a href="mailto:info@playmakersportsfoundation.org">Email our team</a>.</p>
+            <div id="registration-error" class="form-error" role="alert">We couldn’t save your registration. Please try again or email our team for help.</div>
+          </div>
+        </form>
+
+        <div id="registration-success" class="success-state" tabindex="-1" role="status" aria-live="polite">
+          <div class="success-mark" aria-hidden="true">✓</div>
+          <h2>Your child’s spot is reserved.</h2>
+          <p>Thank you for registering for the free Moorpark youth soccer clinic. Our program team has received your information.</p>
+          <a href="index.html">Return to the foundation home page</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-row">
+      <div class="footer-brand">Playmaker Sports Foundation</div>
+      <div class="footer-copy">© 2026 Playmaker Sports Foundation · California 501(c)(3) nonprofit</div>
+    </div>
+  </footer>
+
+  <script>
+    const registrationForm = document.getElementById('registration-form');
+    const successState = document.getElementById('registration-success');
+    const errorState = document.getElementById('registration-error');
+    const submitButton = registrationForm.querySelector('.submit-button');
+
+    registrationForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      submitButton.disabled = true;
+      submitButton.textContent = 'Sending registration…';
+      errorState.classList.remove('is-visible');
+
+      const payload = Object.fromEntries(new FormData(registrationForm).entries());
+      payload.consent = document.getElementById('consent').checked;
+
+      try {
+        const response = await fetch(registrationForm.action, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.success !== true) {
+          throw new Error(result.message || 'Registration failed');
+        }
+        registrationForm.reset();
+        registrationForm.hidden = true;
+        successState.classList.add('is-visible');
+        successState.focus();
+        successState.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (requestError) {
+        errorState.classList.add('is-visible');
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Complete free registration';
+      }
+    });
+  </script>
+</body>
+</html>

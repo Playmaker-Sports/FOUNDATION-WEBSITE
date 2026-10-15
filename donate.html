@@ -49,21 +49,24 @@
     .page-hero-eyebrow::before { content: ''; display: block; width: 20px; height: 1px; background: var(--gold); }
     @media(max-width:860px){ .donate-top-inner{grid-template-columns:1fr;gap:40px;} }
     footer { background: #050505; border-top: 1px solid rgba(201,168,76,0.15); padding: 52px 5% 36px; }
-    .footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; flex-wrap: wrap; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 28px; }
+    .footer-top { display: grid; grid-template-columns: 1.1fr 1fr 1.4fr 1fr; align-items: start; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 28px; }
     .footer-brand { display: flex; align-items: center; gap: 14px; }
     .footer-brand img { width: 44px; height: 44px; object-fit: contain; }
     .footer-logo-top { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 0.95rem; letter-spacing: 0.1em; color: var(--gold2); text-transform: uppercase; }
     .footer-logo-bottom { font-size: 0.7rem; color: rgba(248,248,248,0.3); letter-spacing: 0.06em; }
     .footer-tagline { font-size: 0.78rem; color: rgba(248,248,248,0.3); margin-top: 10px; max-width: 260px; line-height: 1.6; }
-    .footer-links-col h4 { font-family: 'Oswald', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
-    .footer-links-col ul { list-style: none; }
+    .footer-links-col h4, .footer-register h4 { font-family: 'Oswald', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+    .footer-links-col ul { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(110px, 1fr)); column-gap: 24px; }
     .footer-links-col ul li { margin-bottom: 10px; }
     .footer-links-col ul li a { font-size: 0.84rem; color: rgba(248,248,248,0.4); text-decoration: none; transition: color 0.2s; }
     .footer-links-col ul li a:hover { color: var(--gold2); }
+    .footer-register { border-left: 1px solid rgba(201,168,76,0.15); padding-left: 32px; }
+    .footer-register p { font-size: 0.82rem; color: rgba(248,248,248,0.45); line-height: 1.6; margin-bottom: 18px; }
     .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
     .footer-copy { font-size: 0.76rem; color: rgba(248,248,248,0.2); }
     .footer-legal { font-size: 0.76rem; color: rgba(248,248,248,0.2); text-align: right; }
-    @media (max-width: 860px) { nav .nav-links { display: none; } }
+    @media (max-width: 900px) { nav .nav-links { display: none; } .footer-top { grid-template-columns: 1fr 1fr; } .footer-register { border-left: none; padding-left: 0; } }
+    @media (max-width: 600px) { .footer-top { grid-template-columns: 1fr; } }
 
     .donate-hero-section { background: var(--black2); }
     .donate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
@@ -105,7 +108,7 @@
       <div class="nav-logo-bottom">Foundation</div>
     </div>
   </a>
-  <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="programs.html">Programs</a></li><li><a href="donate.html" class="nav-donate">Donate</a></li><li><a href="contact.html">Contact</a></li></ul>
+  <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="programs.html">Programs</a></li><li><a href="registration.html">Register</a></li><li><a href="donate.html" class="nav-donate">Donate</a></li><li><a href="contact.html">Contact</a></li></ul>
 </nav>
 
 <div class="donate-top-hero">
@@ -197,6 +200,7 @@
         <li><a href="index.html">Home</a></li>
         <li><a href="about.html">About Us</a></li>
         <li><a href="programs.html">Programs</a></li>
+        <li><a href="registration.html">Register</a></li>
         <li><a href="donate.html">Donate</a></li>
         <li><a href="contact.html">Contact</a></li>
       </ul>
@@ -210,6 +214,11 @@
         <li><a href="programs.html">Leadership Through Sport</a></li>
         <li><a href="programs.html">Equipment Assistance</a></li>
       </ul>
+    </div>
+    <div class="footer-register">
+      <h4>Free Soccer Clinic</h4>
+      <p>September 18 in Moorpark. Registration is open for players ages 6–12.</p>
+      <a href="registration.html" class="btn-gold">Register</a>
     </div>
   </div>
   <div class="footer-bottom">
