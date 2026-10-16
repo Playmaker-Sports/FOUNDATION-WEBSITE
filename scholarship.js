@@ -51,7 +51,7 @@
   }
 
   function validateExpenses() {
-    expenseInputs[0].setCustomValidity(expenseInputs.some(input => input.checked) ? '' : 'Choose at least one expense the assistance would help cover.');
+    expenseInputs[0].setCustomValidity(expenseInputs.some(input => input.checked) ? '' : 'Choose at least one expense the scholarship would help cover.');
   }
 
   function showReceived(reference, confirmationSent = null) {

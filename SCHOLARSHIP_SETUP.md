@@ -1,4 +1,4 @@
-# 2026 Playmakers Cup assistance: setup and administration
+# 2026 Playmakers Cup scholarship: setup and administration
 
 The first-party application is `scholarship.html`, linked from Home, Programs, and every main navigation/footer. It does not use Google Forms. Answers go to the Playmaker API, which saves to a private Google Sheet and sends a minimal staff notification plus a separate applicant thank-you through Resend.
 
@@ -8,7 +8,7 @@ Code and a blank 36-column workbook template are prepared. This document is not 
 
 ## Agreed award rules
 
-- One recipient, up to $500 in need-based soccer assistance.
+- One recipient, a need-based soccer scholarship of up to $500.
 - Applicants must currently be in grades 6–12 and be registered players participating with a team in the 2026 Playmakers Cup. Staff verify participation against tournament registration records. There is no separate age cutoff; applicants under 18 require guardian acknowledgment.
 - Application deadline: November 20, 2026, at 11:59 p.m. America/Los_Angeles. The API rejects new submissions starting November 21 at midnight Pacific.
 - Selection is based on demonstrated financial need and the application. Receipts substantiate expenses, not financial need.
@@ -63,8 +63,8 @@ Saving to Sheets happens before email. Staff notification and applicant thank-yo
 ## 4. Staff selection and reimbursement checklist
 
 1. Use the private review columns: **Review status**, **Cup participation verified**, **Financial need reviewed**, **Selection rationale**, **Approved reimbursement (USD)**, and **Receipts/payment record**. Preserve the original submitted answers and application ID.
-2. Foundation reviewers assess the financial need described and verify tournament participation. Record a short, factual selection reason tied to the charitable assistance purpose. Do not require tax returns, SSNs, bank statements, or receipt uploads from all applicants.
-3. Have Foundation decision-makers approve the recipient independently of the tournament business's sales or promotion. Disclose and manage conflicts; do not favor insiders or require an additional tournament-business purchase to receive assistance. Keep the tournament-eligibility restriction in the policy/accounting review rather than assuming that restriction is automatically permissible or automatically prohibited.
+2. Foundation reviewers assess the financial need described and verify tournament participation. Record a short, factual selection reason tied to the scholarship's charitable purpose. Do not require tax returns, SSNs, bank statements, or receipt uploads from all applicants.
+3. Have Foundation decision-makers approve the recipient independently of the tournament business's sales or promotion. Disclose and manage conflicts; do not favor insiders or require an additional tournament-business purchase to receive a scholarship. Keep the tournament-eligibility restriction in the policy/accounting review rather than assuming that restriction is automatically permissible or automatically prohibited.
 4. Contact the selected adult or guardian privately. Collect only receipts needed to show paid, eligible soccer expenses. Ask them to redact card numbers and other unrelated sensitive information. Store receipts in a separate restricted Foundation Drive folder, not in a public upload folder.
 5. Check the expense belongs to the recipient, was actually paid, is eligible, and is not being reimbursed twice. Record receipt dates, eligible total, approval, payee, payment date/reference, and a restricted receipt-folder link in **Receipts/payment record**. Never put bank account details in the application Sheet.
 6. Reimburse no more than documented eligible costs and no more than $500. If the documents do not support the full award, request eligible receipts or pay only the supported amount. Record the Foundation approver and payment through the normal accounting process.
