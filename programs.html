@@ -27,8 +27,6 @@
     .nav-links a.active { border-bottom: 1px solid var(--gold); padding-bottom: 2px; }
     .nav-donate { background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); color: var(--black) !important; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; padding: 9px 20px; border-radius: 2px; transition: opacity 0.2s !important; border-bottom: none !important; }
     .nav-donate:hover { opacity: 0.85; }
-    .nav-register { background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); color: var(--black) !important; font-family: 'Oswald', sans-serif; font-weight: 700 !important; padding: 9px 18px; border-radius: 2px; border-bottom: none !important; }
-    .nav-register:hover { opacity: 0.88; }
     .btn-gold { display: inline-block; background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); color: var(--black); font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 0.88rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; padding: 14px 32px; border-radius: 2px; transition: opacity 0.2s, transform 0.15s; cursor: pointer; border: none; }
     .btn-gold:hover { opacity: 0.9; transform: translateY(-1px); }
     .btn-outline { display: inline-block; border: 1px solid rgba(201,168,76,0.4); color: var(--gold2); font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 0.88rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; padding: 14px 32px; border-radius: 2px; transition: border-color 0.2s, background 0.2s; }
@@ -70,6 +68,10 @@
     .program-full h3 { font-family: 'Oswald', sans-serif; font-size: 1.4rem; font-weight: 600; color: var(--white); margin-bottom: 12px; }
     .program-full p { font-size: 0.93rem; color: var(--gray); line-height: 1.8; }
     .program-tag { display: inline-block; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(201,168,76,0.25); padding: 4px 10px; border-radius: 2px; margin-bottom: 12px; }
+    .program-application { border-top: 1px solid rgba(201,168,76,0.25); padding-top: 24px; margin-top: 24px; }
+    .program-application h4 { font-family: 'Oswald', sans-serif; font-size: 1.15rem; font-weight: 500; color: var(--gold2); margin-bottom: 8px; }
+    .program-application p { color: rgba(248,248,248,0.75); max-width: 950px; }
+    .program-application .btn-gold { margin-top: 20px; }
     @media(max-width:700px){ .program-full{grid-template-columns:1fr;gap:20px;padding:32px 24px;} }
 
 </style>
@@ -84,7 +86,7 @@
       <div class="nav-logo-bottom">Foundation</div>
     </div>
   </a>
-  <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="programs.html" class="active">Programs</a></li><li><a href="donate.html">Donate</a></li><li><a href="contact.html">Contact</a></li></ul>
+  <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="programs.html" class="active">Programs</a></li><li><a href="scholarship.html">Scholarships</a></li><li><a href="donate.html">Donate</a></li><li><a href="contact.html">Contact</a></li></ul>
 </nav>
 
 <div class="page-hero">
@@ -95,7 +97,16 @@
 <section class="programs-section">
   <div class="program-full">
     <div class="program-full-icon">🎓</div>
-    <div><div class="program-tag">Scholarships</div><h3>Youth Athlete Scholarship Program</h3><p>Provides direct financial assistance to youth athletes and families who may not otherwise have access to athletic participation opportunities, training, educational experiences, or competitive events. The scholarship program is the Foundation's cornerstone initiative — removing the primary financial barrier preventing young athletes from participating and developing. Awards are based on demonstrated financial need and commitment to athletic participation.</p></div>
+    <div>
+      <div class="program-tag">Scholarships</div>
+      <h3>Youth Athlete Scholarship Program</h3>
+      <p>Provides direct financial assistance to youth athletes and families who may not otherwise have access to athletic participation opportunities, training, educational experiences, or competitive events. The scholarship program is the Foundation's cornerstone initiative — removing the primary financial barrier preventing young athletes from participating and developing. Awards are based on demonstrated financial need and commitment to athletic participation.</p>
+      <div class="program-application">
+        <h4>2026 Playmakers Cup Student-Athlete Assistance</h4>
+        <p>One recipient demonstrating financial need will receive up to $500 toward documented club soccer fees or soccer gear. Open to registered players in grades 6–12 participating in the 2026 Playmakers Cup. Apply by November 20, 2026. Receipts are requested from the selected recipient before reimbursement; a parent or guardian handles payment for recipients under 18.</p>
+        <a href="scholarship.html" class="btn-gold">Apply for Assistance</a>
+      </div>
+    </div>
   </div>
   <div class="program-full">
     <div class="program-full-icon">⚽</div>
@@ -133,6 +144,7 @@
         <li><a href="index.html">Home</a></li>
         <li><a href="about.html">About Us</a></li>
         <li><a href="programs.html">Programs</a></li>
+        <li><a href="scholarship.html">Scholarships</a></li>
         <li><a href="donate.html">Donate</a></li>
         <li><a href="contact.html">Contact</a></li>
       </ul>
