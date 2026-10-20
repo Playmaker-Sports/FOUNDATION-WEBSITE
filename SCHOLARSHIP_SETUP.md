@@ -66,7 +66,11 @@ The standalone `backend/app.py` does not import or start the company API. Keep G
 
 Free Render services can sleep or restart. The client allows up to 90 seconds for availability and submission requests and explains an availability wait after eight seconds. Failed/uncertain submissions retain their reference for safe manual retry; do not add automatic POST retries or a false success screen.
 
-After the actual Foundation service URL is known, any separately configured uptime monitor should request its cheap `/health` endpoint, not the scholarship status route (which reads the private Sheet). Pings do not guarantee uptime, remove usage limits, or prove that Sheets/email works. No monitor is created merely by publishing this code. Render's current free-service limits are documented at https://render.com/docs/free.
+The deployed Foundation service is `https://foundation-website-7o9d.onrender.com`. Its independent GitHub Actions workflow, `.github/workflows/foundation-keepalive.yml`, requests the cheap `/health` endpoint about every ten minutes. It does not read the private Sheet, send emails, use secrets, or run the company API. It also runs when the workflow file is pushed and can be run manually from the repository's Actions tab. Confirm a successful run before reporting it as verified.
+
+The Foundation repository is public and the workflow uses a standard GitHub-hosted Ubuntu runner, without paid runners or uploaded artifacts. GitHub documents standard-runner usage as free for public repositories: https://docs.github.com/en/billing/concepts/product-billing/github-actions. If the repository becomes private, reassess its Actions usage before retaining this schedule.
+
+This is a best-effort keep-alive, not guaranteed continuous uptime or a dedicated alerting service. GitHub can delay scheduled runs and disables public-repository schedules after 60 days without repository activity. Do not add automatic commits to evade that policy. Scheduled-run behavior: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule. Pings still consume Render running hours and do not remove usage limits or prove that Sheets/email works. Render's free-service limits: https://render.com/docs/free.
 
 ## 3. Release verification
 

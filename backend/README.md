@@ -63,9 +63,13 @@ The public website must use this Foundation service's URL, never the company API
 URL. Keep the existing route path and allow only the Foundation's two website
 origins. The website allows 90 seconds for availability and submission requests,
 shows a startup notice after eight seconds, and preserves the submission reference
-when retrying. Free-service cold starts can still delay access. An external
-liveness ping can use `/health`, but does not prove Google/email readiness or
-guarantee availability.
+when retrying. Free-service cold starts can still delay access.
+
+The repository's independent `.github/workflows/foundation-keepalive.yml` pings
+`https://foundation-website-7o9d.onrender.com/health` about every ten minutes.
+It needs no credentials and makes no Google or email requests. GitHub schedules
+can be delayed and public-repository schedules stop after 60 days of inactivity;
+this does not guarantee availability or prove Google/email readiness.
 
 Submissions are saved before independently attempting the staff alert and the
 guardian/applicant thank-you. Email failure never discards a saved application.
