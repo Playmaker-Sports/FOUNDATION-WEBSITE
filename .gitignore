@@ -1,0 +1,21 @@
+# Secrets and private intake data never belong in this public repository.
+.env
+.env.*
+!.env.example
+credentials*.json
+*service-account*.json
+*service_account*.json
+token*.json
+*.pem
+*.key
+applications-export.*
+receipts/
+
+# Local Python/test artifacts.
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/

@@ -10,6 +10,15 @@
   const dob = document.getElementById('dob');
   const expenseInputs = [...form.querySelectorAll('[name="eligible_expenses"]')];
   const localPreview = location.protocol === 'file:';
+  // Enable only after the independent Foundation API is deployed and verified.
+  const apiEndpoint = (() => {
+    const action = form.getAttribute('action')?.trim();
+    if (form.dataset.apiPending === 'true' || !action) return null;
+    try {
+      const url = new URL(action);
+      return url.protocol === 'https:' && !url.username && !url.password && !url.search && !url.hash && url.pathname === '/api/foundation/scholarship-applications' ? url.href : null;
+    } catch { return null; }
+  })();
   const deadlineExclusive = Date.parse('2026-11-21T00:00:00-08:00');
   const idKey = 'foundation-cup-2026-submission-id';
   const receivedKey = 'foundation-cup-2026-received-id';
@@ -82,12 +91,21 @@
       checking = false;
       return;
     }
+    if (!apiEndpoint) {
+      form.hidden = true;
+      statusMessage.textContent = 'Scholarship applications are not open yet. The Foundation is finishing its secure application setup. Please check back or contact info@playmakersportsfoundation.org.';
+      checking = false;
+      return;
+    }
     statusMessage.textContent = 'Checking application availability…';
     form.hidden = true;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => controller.abort(), 90000);
+    const startupNotice = setTimeout(() => {
+      if (generation === availabilityGeneration && checking && success.hidden) statusMessage.textContent = 'The application service is starting or taking longer than usual. Please keep this page open while we check availability.';
+    }, 8000);
     try {
-      const response = await fetch(`${form.action}/status`, { headers:{ Accept:'application/json' }, signal:controller.signal, cache:'no-store' });
+      const response = await fetch(`${apiEndpoint}/status`, { headers:{ Accept:'application/json' }, signal:controller.signal, cache:'no-store' });
       const result = await response.json();
       if (generation !== availabilityGeneration || !success.hidden) return;
       if (!response.ok || result.accepting_applications !== true) {
@@ -106,6 +124,7 @@
       retryStatus.hidden = false;
     } finally {
       clearTimeout(timeout);
+      clearTimeout(startupNotice);
       checking = false;
     }
   }
@@ -123,7 +142,7 @@
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
-    if (!accepting || localPreview || sending) return;
+    if (!accepting || !apiEndpoint || localPreview || sending) return;
     errorBox.hidden = true;
     if (Date.now() >= deadlineExclusive) {
       accepting = false;
@@ -146,9 +165,9 @@
     submit.disabled = true;
     submit.textContent = 'Saving application…';
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 45000);
+    const timeout = setTimeout(() => controller.abort(), 90000);
     try {
-      const response = await fetch(form.action, { method:'POST', headers:{ 'Accept':'application/json', 'Content-Type':'application/json' }, body:JSON.stringify(payload), signal:controller.signal });
+      const response = await fetch(apiEndpoint, { method:'POST', headers:{ 'Accept':'application/json', 'Content-Type':'application/json' }, body:JSON.stringify(payload), signal:controller.signal });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || result.success !== true) {
         if (response.status === 410 || response.status === 409) accepting = false;

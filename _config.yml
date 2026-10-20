@@ -1,0 +1,5 @@
+# The API deploys independently on Render, not as downloadable website files.
+exclude:
+  - backend
+  - SCHOLARSHIP_SETUP.md
+  - REGISTRATION_SETUP.md
