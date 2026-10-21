@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="scholarship.css?v=20261020-branded-1" />
+  <title>Scholarship Application | Playmaker Sports Foundation</title>
+  <meta name="description" content="Apply for the Playmaker Sports Foundation Scholarship for the 2026 Playmakers Cup. Complete the applicant, tournament, personal development, financial need, and acknowledgment sections by November 20, 2026." />
+</head>
+<body>
+  <a class="skip-link" href="#application-main">Skip to application</a>
+  <nav aria-label="Main navigation">
+    <a class="nav-logo" href="index.html" aria-label="Playmaker Sports Foundation home"><img src="Foundation_Logo_1.png" alt="" /><div><strong>Playmaker Sports</strong><span>Foundation</span></div></a>
+    <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="programs.html">Programs</a></li><li><a href="scholarship.html" aria-current="page">Scholarships</a></li><li><a href="donate.html">Donate</a></li><li><a href="contact.html">Contact</a></li></ul>
+  </nav>
+  <main class="application-page" id="application-main">
+    <header class="application-header">
+      <a class="back-link" href="scholarship.html">Review scholarship details</a>
+      <p class="eyebrow">2026 Playmakers Cup · Playmaker Sports Foundation</p>
+      <h1 id="application-title">Scholarship application</h1>
+      <p>Complete all five sections below. Fields marked <span class="required">*</span> are required. Suggested response lengths are guidance, not minimums.</p>
+      <p>Apply by November 20, 2026, at 11:59 p.m. Pacific. No receipts are needed with your application.</p>
+    </header>
+    <div class="availability" id="availability" role="status" aria-live="polite"><p id="availability-message">Checking application availability…</p><button class="text-button" id="retry-availability" type="button" hidden>Check again</button></div>
+    <noscript><div class="availability">JavaScript is needed to submit this application. Please enable it or <a href="mailto:info@playmakersportsfoundation.org">contact the Foundation</a> for help.</div></noscript>
+    <form id="scholarship-form" action="https://foundation-website-7o9d.onrender.com/api/foundation/scholarship-applications" data-api-pending="false" method="post">
+      <fieldset class="form-section">
+        <legend><span class="section-number">01</span>Applicant information</legend>
+        <div class="form-grid">
+          <div class="field full"><label for="applicant-name">Player’s full name <span class="required">*</span></label><input id="applicant-name" name="applicant_name" autocomplete="name" maxlength="200" required /></div>
+          <div class="field"><label for="dob">Date of birth <span class="required">*</span></label><input id="dob" name="date_of_birth" type="date" autocomplete="bday" aria-describedby="dob-help" required /><p class="field-help" id="dob-help">Used to determine whether guardian acknowledgment is required.</p></div>
+          <div class="field"><label for="grade">Current grade level <span class="required">*</span></label><select id="grade" name="grade_level" required><option value="">Select your grade</option><option>6th grade</option><option>7th grade</option><option>8th grade</option><option>9th grade</option><option>10th grade</option><option>11th grade</option><option>12th grade</option></select></div>
+          <div id="guardian-fields">
+            <div class="field"><label for="guardian-name">Parent or legal guardian’s name <span class="required">*</span></label><input id="guardian-name" name="guardian_name" autocomplete="section-guardian name" maxlength="200" required /></div>
+            <div class="field"><label for="guardian-email">Parent or legal guardian’s email <span class="required">*</span></label><input id="guardian-email" name="guardian_email" type="email" autocomplete="section-guardian email" maxlength="254" required /></div>
+          </div>
+          <div class="field full"><label for="applicant-email">Applicant’s email <span id="applicant-email-required" class="required" hidden>*</span></label><input id="applicant-email" name="applicant_email" type="email" autocomplete="email" maxlength="254" aria-describedby="email-help" /><p class="field-help" id="email-help">Optional for applicants under 18. Required for applicants 18 or older.</p></div>
+          <div class="field"><label for="city">City of residence <span class="required">*</span></label><input id="city" name="city" autocomplete="address-level2" maxlength="120" required /></div>
+          <div class="field"><label for="school">Current school <span class="required">*</span></label><input id="school" name="school" maxlength="200" aria-describedby="school-help" required /><p class="field-help" id="school-help">For home-schooled applicants, enter “Homeschool.”</p></div>
+        </div>
+      </fieldset>
+      <fieldset class="form-section">
+        <legend><span class="section-number">02</span>Playmakers Cup participation</legend>
+        <div class="form-grid">
+          <div class="field full"><label for="club-team">Which club and team will you represent at the 2026 Playmakers Cup? <span class="required">*</span></label><input id="club-team" name="club_team" maxlength="250" required /></div>
+          <div class="field full"><label for="age-group">What is your team’s age group? <span class="required">*</span></label><input id="age-group" name="team_age_group" maxlength="100" placeholder="For example, Girls U14 or Boys 2013" required /></div>
+          <label class="check-row field full"><input name="participation_confirmed" type="checkbox" required /><span>I confirm that I am a registered player participating with a team in the 2026 Playmakers Cup. I understand that tournament participation is required for this scholarship. <span class="required">*</span></span></label>
+        </div>
+      </fieldset>
+      <fieldset class="form-section">
+        <legend><span class="section-number">03</span>Sports and personal development</legend>
+        <div class="form-grid">
+          <div class="field full"><label for="growth">What has playing soccer taught you about yourself, and how have you grown as a person through the sport? <span class="required">*</span></label><textarea id="growth" name="growth" maxlength="5000" required aria-describedby="growth-help"></textarea><p class="field-help word-count" id="growth-help"><span>Suggested: 100–200 words.</span><span data-count-for="growth">0 words</span></p></div>
+          <div class="field full"><label for="challenge">Describe a challenge you have faced in soccer, school, or life. How did you respond, and what did you learn? <span class="required">*</span></label><textarea id="challenge" name="challenge" maxlength="5000" required aria-describedby="challenge-help"></textarea><p class="field-help word-count" id="challenge-help"><span>Suggested: 100–200 words.</span><span data-count-for="challenge">0 words</span></p></div>
+          <div class="field full"><label for="goals">What are your goals for the future, both in sports and outside of sports? <span class="required">*</span></label><textarea id="goals" name="goals" maxlength="5000" required aria-describedby="goals-help"></textarea><p class="field-help word-count" id="goals-help"><span>Suggested: 100–150 words.</span><span data-count-for="goals">0 words</span></p></div>
+        </div>
+      </fieldset>
+      <fieldset class="form-section">
+        <legend><span class="section-number">04</span>Financial need and impact</legend>
+        <div class="form-grid">
+          <div class="field full"><label for="financial-need">Briefly explain your financial need. How would up to $500 toward soccer fees or gear help you or your family? <span class="required">*</span></label><textarea id="financial-need" name="financial_need" maxlength="5000" required aria-describedby="financial-help"></textarea><p class="field-help word-count" id="financial-help"><span>Suggested: 100–200 words. Share only the context you are comfortable providing; do not include bank details, Social Security numbers, or tax documents.</span><span data-count-for="financial-need">0 words</span></p></div>
+          <fieldset class="expense-group field full"><legend>What would the scholarship help cover? <span class="required">*</span></legend><p class="field-help" id="expenses-help">Choose at least one. Receipts are requested only from the selected recipient.</p><div class="check-stack" aria-describedby="expenses-help"><label class="check-row"><input type="checkbox" name="eligible_expenses" value="Club soccer fees" /><span>Club soccer registration or participation fees</span></label><label class="check-row"><input type="checkbox" name="eligible_expenses" value="Soccer equipment" /><span>Soccer equipment or gear</span></label></div></fieldset>
+          <div class="field full"><label for="additional-context">Is there anything else you would like the selection committee to know? <span class="optional-label">Optional</span></label><textarea id="additional-context" name="additional_context" maxlength="3000" aria-describedby="additional-help"></textarea><p class="field-help" id="additional-help">You can share relevant context without disclosing sensitive personal information.</p></div>
+        </div>
+      </fieldset>
+      <fieldset class="form-section">
+        <legend><span class="section-number">05</span>Acknowledgments and submission</legend>
+        <div class="check-stack">
+          <label class="check-row" id="guardian-ack-row"><input type="checkbox" id="guardian-ack" name="guardian_ack" required /><span>I confirm that I am the applicant’s parent or legal guardian, have reviewed this application, and consent to the applicant’s participation in the selection process. <span class="required">*</span></span></label>
+          <label class="check-row"><input type="checkbox" name="accuracy_ack" required /><span>I confirm that the information provided is accurate to the best of my knowledge. <span class="required">*</span></span></label>
+          <label class="check-row"><input type="checkbox" name="privacy_ack" required /><span>I understand that authorized Foundation selection committee members will review my information to evaluate this application and administer the scholarship. <span class="required">*</span></span></label>
+          <label class="check-row"><input type="checkbox" name="payment_ack" required /><span>I understand that one recipient demonstrating financial need will receive reimbursement of up to $500 for documented club soccer fees or soccer equipment. If selected, I must provide receipts before payment. Payment cannot exceed the eligible expenses documented. A parent or guardian must handle reimbursement for a recipient under 18. <span class="required">*</span></span></label>
+          <label class="check-row optional-consent"><input type="checkbox" name="publicity_consent" /><span><span class="optional-label">Optional publicity contact permission</span><br>I give Playmaker Sports Foundation permission to contact me or my guardian about potentially sharing the recipient’s name, photo, or scholarship story publicly. Declining does not affect eligibility. This is permission to contact us; the Foundation will request separate permission before publishing identifying information or photos.</span></label>
+        </div>
+      </fieldset>
+      <div class="honeypot" aria-hidden="true"><label for="website">Leave this field empty</label><input id="website" name="_honey" tabindex="-1" autocomplete="off" /></div>
+      <div class="submit-area">
+        <button class="btn-gold submit-button" id="submit-application" type="submit" disabled>Submit application</button>
+        <p class="privacy-note">Your answers are submitted securely to the Foundation for scholarship review. Receipts and payment information are requested separately from the selected recipient. Submission does not guarantee an award.</p>
+        <div class="form-error" id="form-error" role="alert" tabindex="-1" hidden></div>
+      </div>
+    </form>
+    <section class="success-state" id="application-success" role="status" tabindex="-1" hidden>
+      <h2>Your application has been received.</h2>
+      <p>Your answers were saved for review by Playmaker Sports Foundation. Keep your application reference:</p>
+      <p class="application-id" id="application-reference"></p>
+      <p>You do not need to submit again. If selected, you or your guardian will be contacted to verify eligibility and provide receipts.</p>
+      <p><a href="scholarship-thank-you.html">Scholarship details and next steps</a></p>
+      <button class="text-button" id="another-application" type="button">Start an application for another player</button>
+    </section>
+  </main>
+  <footer>
+    <p>© 2026 Playmaker Sports Foundation</p>
+    <ul class="footer-links"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="programs.html">Programs</a></li><li><a href="scholarship.html">Scholarships</a></li><li><a href="donate.html">Donate</a></li><li><a href="contact.html">Contact</a></li></ul>
+  </footer>
+  <script src="scholarship.js?v=20261020-branded-1" defer></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const form = document.getElementById('scholarship-form');
+  if (!form) return;
   const submit = document.getElementById('submit-application');
   const statusMessage = document.getElementById('availability-message');
   const statusBox = document.getElementById('availability');
@@ -91,8 +92,8 @@
       return;
     }
     if (!apiEndpoint) {
-      form.hidden = true;
-      statusMessage.textContent = 'Scholarship applications are not open yet. The Foundation is finishing its secure application setup. Please check back or contact info@playmakersportsfoundation.org.';
+      form.hidden = false;
+      statusMessage.textContent = 'Application preview. Submissions are not connected yet.';
       checking = false;
       return;
     }
@@ -168,7 +169,11 @@
     try {
       const response = await fetch(apiEndpoint, { method:'POST', headers:{ 'Accept':'application/json', 'Content-Type':'application/json' }, body:JSON.stringify(payload), signal:controller.signal });
       const result = await response.json().catch(() => ({}));
-      if (!response.ok || result.success !== true) {
+      const confirmedSave = result.success === true && result.application_id === submissionId &&
+        typeof result.submitted_at === 'string' &&
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(result.submitted_at) &&
+        Number.isFinite(Date.parse(result.submitted_at));
+      if (!response.ok || !confirmedSave) {
         if (response.status === 410 || response.status === 409) accepting = false;
         const fieldNames = { applicant_name:'Player’s full name', date_of_birth:'Date of birth', grade_level:'Grade level', city:'City', school:'Current school', guardian_name:'Parent/guardian name', guardian_email:'Parent/guardian email', applicant_email:'Applicant email', club_team:'Club and team', team_age_group:'Team age group', growth:'Soccer and personal growth response', challenge:'Challenge response', goals:'Future goals response', financial_need:'Financial need response', eligible_expenses:'Expense selection', guardian_ack:'Parent/guardian acknowledgment', participation_confirmed:'Cup participation confirmation', accuracy_ack:'Accuracy acknowledgment', privacy_ack:'Privacy acknowledgment', payment_ack:'Reimbursement acknowledgment' };
         let message = response.status === 429 ? 'Too many attempts. Please wait a minute and try again.' : response.status === 410 ? 'Applications have closed. The deadline was November 20, 2026, at 11:59 p.m. Pacific.' : response.status === 503 ? 'Applications are temporarily unavailable. Please try again later or email the Foundation.' : 'Your application could not be saved. Your answers are still here; please try again.';
@@ -179,13 +184,16 @@
         }
         throw new Error(message);
       }
-      const reference = result.application_id || submissionId;
+      const reference = result.application_id;
       stored.set(receivedKey, reference);
       stored.remove(idKey);
       showReceived(reference);
       form.reset();
       success.focus();
       success.scrollIntoView({ behavior:'smooth', block:'start' });
+      // Navigate only after the server has confirmed this exact application.
+      // Keep names, email addresses, and answers out of the destination URL.
+      location.assign('scholarship-thank-you.html');
     } catch (error) {
       errorBox.textContent = error.name === 'AbortError' ? 'The request took too long. Your answers are still here. Please retry; your application reference is reused to avoid duplicate submissions.' : error.message === 'Failed to fetch' ? 'We could not reach the application service. Your answers are still here; please try again.' : error.message;
       errorBox.hidden = false;
