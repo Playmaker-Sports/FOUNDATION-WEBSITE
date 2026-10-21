@@ -24,9 +24,10 @@
       <p>Complete all five sections below. Fields marked <span class="required">*</span> are required. Suggested response lengths are guidance, not minimums.</p>
       <p>Apply by November 20, 2026, at 11:59 p.m. Pacific. No receipts are needed with your application.</p>
     </header>
-    <div class="availability" id="availability" role="status" aria-live="polite"><p id="availability-message">Checking application availability…</p><button class="text-button" id="retry-availability" type="button" hidden>Check again</button></div>
+    <div class="availability" id="availability" role="status" aria-live="polite"><p id="availability-message">Loading application…</p></div>
     <noscript><div class="availability">JavaScript is needed to submit this application. Please enable it or <a href="mailto:info@playmakersportsfoundation.org">contact the Foundation</a> for help.</div></noscript>
-    <form id="scholarship-form" action="https://foundation-website-7o9d.onrender.com/api/foundation/scholarship-applications" data-api-pending="false" method="post">
+    <!-- action: the Apps Script web app URL ending in /exec. See SCHOLARSHIP_SETUP.md. -->
+    <form id="scholarship-form" action="" method="post">
       <fieldset class="form-section">
         <legend><span class="section-number">01</span>Applicant information</legend>
         <div class="form-grid">
@@ -96,6 +97,6 @@
     <p>© 2026 Playmaker Sports Foundation</p>
     <ul class="footer-links"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="programs.html">Programs</a></li><li><a href="scholarship.html">Scholarships</a></li><li><a href="donate.html">Donate</a></li><li><a href="contact.html">Contact</a></li></ul>
   </footer>
-  <script src="scholarship.js?v=20261020-branded-1" defer></script>
+  <script src="scholarship.js?v=20261020-apps-script-1" defer></script>
 </body>
 </html>

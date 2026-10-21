@@ -1,5 +1,5 @@
-# The API deploys independently on Render, not as downloadable website files.
+# Setup notes and the Apps Script source are not part of the public website.
 exclude:
-  - backend
+  - apps-script
   - SCHOLARSHIP_SETUP.md
   - REGISTRATION_SETUP.md

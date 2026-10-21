@@ -5,28 +5,26 @@
   const submit = document.getElementById('submit-application');
   const statusMessage = document.getElementById('availability-message');
   const statusBox = document.getElementById('availability');
-  const retryStatus = document.getElementById('retry-availability');
   const errorBox = document.getElementById('form-error');
   const success = document.getElementById('application-success');
   const dob = document.getElementById('dob');
   const expenseInputs = [...form.querySelectorAll('[name="eligible_expenses"]')];
   const localPreview = location.protocol === 'file:';
-  // Enable only after the independent Foundation API is deployed and verified.
-  const apiEndpoint = (() => {
-    const action = form.getAttribute('action')?.trim();
-    if (form.dataset.apiPending === 'true' || !action) return null;
+  // The form's action is the Foundation's Apps Script web app, which saves each
+  // application to the scholarship Sheet and emails staff (SCHOLARSHIP_SETUP.md).
+  const endpoint = (() => {
     try {
-      const url = new URL(action);
-      return url.protocol === 'https:' && !url.username && !url.password && !url.search && !url.hash && url.pathname === '/api/foundation/scholarship-applications' ? url.href : null;
+      const url = new URL(form.getAttribute('action') || '');
+      return url.protocol === 'https:' && url.hostname === 'script.google.com' && !url.search && !url.hash &&
+        /^\/(?:a\/macros\/[^/]+|macros)\/s\/[\w-]+\/exec$/.test(url.pathname) ? url.href : null;
     } catch { return null; }
   })();
   const deadlineExclusive = Date.parse('2026-11-21T00:00:00-08:00');
+  const closedMessage = 'Applications closed on November 20, 2026, at 11:59 p.m. Pacific.';
   const idKey = 'foundation-cup-2026-submission-id';
   const receivedKey = 'foundation-cup-2026-received-id';
   let accepting = false;
   let sending = false;
-  let checking = false;
-  let availabilityGeneration = 0;
 
   const stored = {
     get(key) { try { return sessionStorage.getItem(key); } catch { return null; } },
@@ -72,60 +70,25 @@
     document.getElementById('application-reference').textContent = reference;
   }
 
-  async function checkAvailability() {
-    if (checking || sending || !success.hidden) return;
-    checking = true;
+  function closeApplications() {
     accepting = false;
     submit.disabled = true;
-    retryStatus.hidden = true;
-    const generation = ++availabilityGeneration;
-    if (localPreview) {
-      form.hidden = false;
-      statusMessage.textContent = 'Local preview. You can review the form here, but applications cannot be submitted from this file.';
-      checking = false;
-      return;
-    }
-    if (Date.now() >= deadlineExclusive) {
-      statusMessage.textContent = 'Applications closed on November 20, 2026, at 11:59 p.m. Pacific.';
-      form.hidden = true;
-      checking = false;
-      return;
-    }
-    if (!apiEndpoint) {
-      form.hidden = false;
-      statusMessage.textContent = 'Application preview. Submissions are not connected yet.';
-      checking = false;
-      return;
-    }
-    statusMessage.textContent = 'Checking application availability…';
     form.hidden = true;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 90000);
-    const startupNotice = setTimeout(() => {
-      if (generation === availabilityGeneration && checking && success.hidden) statusMessage.textContent = 'The application service is starting or taking longer than usual. Please keep this page open while we check availability.';
-    }, 8000);
-    try {
-      const response = await fetch(`${apiEndpoint}/status`, { headers:{ Accept:'application/json' }, signal:controller.signal, cache:'no-store' });
-      const result = await response.json();
-      if (generation !== availabilityGeneration || !success.hidden) return;
-      if (!response.ok || result.accepting_applications !== true) {
-        const closed = result.reason === 'deadline_passed';
-        statusMessage.textContent = closed ? 'Applications closed on November 20, 2026, at 11:59 p.m. Pacific.' : result.reason === 'temporarily_unavailable' ? 'The application service is temporarily unavailable. Please try again shortly or contact info@playmakersportsfoundation.org.' : 'Applications are not available yet. Please check back or contact info@playmakersportsfoundation.org for assistance.';
-        retryStatus.hidden = closed;
-        return;
-      }
+    statusMessage.textContent = closedMessage;
+  }
+
+  function showAvailability() {
+    form.hidden = false;
+    if (localPreview) {
+      statusMessage.textContent = 'Local preview. You can review the form here, but applications cannot be submitted from this file.';
+    } else if (Date.now() >= deadlineExclusive) {
+      closeApplications();
+    } else if (!endpoint) {
+      statusMessage.textContent = 'Application preview. Submissions are not connected yet.';
+    } else {
       accepting = true;
-      form.hidden = false;
       submit.disabled = false;
       statusMessage.textContent = 'Apply by November 20, 2026, at 11:59 p.m. Pacific. No receipt uploads are needed with your application.';
-    } catch {
-      if (generation !== availabilityGeneration || !success.hidden) return;
-      statusMessage.textContent = 'We could not check application availability. Please try again or contact info@playmakersportsfoundation.org.';
-      retryStatus.hidden = false;
-    } finally {
-      clearTimeout(timeout);
-      clearTimeout(startupNotice);
-      checking = false;
     }
   }
 
@@ -138,20 +101,12 @@
   }
   dob.addEventListener('input', updateAgeRequirements);
   for (const input of expenseInputs) input.addEventListener('change', validateExpenses);
-  retryStatus.addEventListener('click', checkAvailability);
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
-    if (!accepting || !apiEndpoint || localPreview || sending) return;
+    if (!accepting || !endpoint || sending) return;
     errorBox.hidden = true;
-    if (Date.now() >= deadlineExclusive) {
-      accepting = false;
-      submit.disabled = true;
-      errorBox.textContent = 'The application deadline has passed. Applications closed November 20, 2026, at 11:59 p.m. Pacific.';
-      errorBox.hidden = false;
-      errorBox.focus();
-      return;
-    }
+    if (Date.now() >= deadlineExclusive) return closeApplications();
     updateAgeRequirements();
     validateExpenses();
     if (!form.reportValidity()) return;
@@ -163,39 +118,25 @@
     }
     sending = true;
     submit.disabled = true;
-    submit.textContent = 'Saving application…';
+    submit.textContent = 'Submitting application…';
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 90000);
+    const timeout = setTimeout(() => controller.abort(), 60000);
     try {
-      const response = await fetch(apiEndpoint, { method:'POST', headers:{ 'Accept':'application/json', 'Content-Type':'application/json' }, body:JSON.stringify(payload), signal:controller.signal });
+      // A text/plain body keeps this a simple cross-site request; Apps Script
+      // cannot answer the preflight that an application/json body triggers.
+      const response = await fetch(endpoint, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify(payload), signal:controller.signal });
       const result = await response.json().catch(() => ({}));
-      const confirmedSave = result.success === true && result.application_id === submissionId &&
-        typeof result.submitted_at === 'string' &&
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/.test(result.submitted_at) &&
-        Number.isFinite(Date.parse(result.submitted_at));
-      if (!response.ok || !confirmedSave) {
-        if (response.status === 410 || response.status === 409) accepting = false;
-        const fieldNames = { applicant_name:'Player’s full name', date_of_birth:'Date of birth', grade_level:'Grade level', city:'City', school:'Current school', guardian_name:'Parent/guardian name', guardian_email:'Parent/guardian email', applicant_email:'Applicant email', club_team:'Club and team', team_age_group:'Team age group', growth:'Soccer and personal growth response', challenge:'Challenge response', goals:'Future goals response', financial_need:'Financial need response', eligible_expenses:'Expense selection', guardian_ack:'Parent/guardian acknowledgment', participation_confirmed:'Cup participation confirmation', accuracy_ack:'Accuracy acknowledgment', privacy_ack:'Privacy acknowledgment', payment_ack:'Reimbursement acknowledgment' };
-        let message = response.status === 429 ? 'Too many attempts. Please wait a minute and try again.' : response.status === 410 ? 'Applications have closed. The deadline was November 20, 2026, at 11:59 p.m. Pacific.' : response.status === 503 ? 'Applications are temporarily unavailable. Please try again later or email the Foundation.' : 'Your application could not be saved. Your answers are still here; please try again.';
-        if (response.status === 409) message = `An earlier version of this application was already saved under reference ${submissionId}. The changes currently shown have not been saved. Please email info@playmakersportsfoundation.org with this reference to request a correction; do not submit a second application.`;
-        if (response.status === 400 && typeof result.message === 'string') {
-          const field = Object.keys(fieldNames).find(name => result.message.startsWith(name));
-          if (field) message = `Please check ${fieldNames[field]}. ${result.message.includes('too long') ? 'Please shorten the response.' : 'Complete the field or correct its value, then try again.'}`;
-        }
-        throw new Error(message);
+      if (result.ok !== true || result.id !== submissionId) {
+        if (result.closed === true) closeApplications();
+        throw new Error(typeof result.message === 'string' && result.message ? result.message : 'Your application could not be saved. Your answers are still here; please try again.');
       }
-      const reference = result.application_id;
-      stored.set(receivedKey, reference);
+      stored.set(receivedKey, submissionId);
       stored.remove(idKey);
-      showReceived(reference);
-      form.reset();
-      success.focus();
-      success.scrollIntoView({ behavior:'smooth', block:'start' });
-      // Navigate only after the server has confirmed this exact application.
+      // Navigate only after the script confirms this exact application was saved.
       // Keep names, email addresses, and answers out of the destination URL.
       location.assign('scholarship-thank-you.html');
     } catch (error) {
-      errorBox.textContent = error.name === 'AbortError' ? 'The request took too long. Your answers are still here. Please retry; your application reference is reused to avoid duplicate submissions.' : error.message === 'Failed to fetch' ? 'We could not reach the application service. Your answers are still here; please try again.' : error.message;
+      errorBox.textContent = error.name === 'AbortError' ? 'The request took too long. Your answers are still here; please try again. Trying again will not create a duplicate application.' : error instanceof TypeError ? 'We could not reach the application service. Your answers are still here; please try again.' : error.message;
       errorBox.hidden = false;
       errorBox.focus();
     } finally {
@@ -216,12 +157,12 @@
     statusBox.hidden = false;
     updateAgeRequirements();
     for (const counter of document.querySelectorAll('[data-count-for]')) counter.textContent = '0 words';
-    checkAvailability();
+    showAvailability();
     document.getElementById('application-title').scrollIntoView({ behavior:'smooth', block:'start' });
   });
   updateAgeRequirements();
   validateExpenses();
   const received = stored.get(receivedKey);
   if (received) showReceived(received);
-  else checkAvailability();
+  else showAvailability();
 })();
