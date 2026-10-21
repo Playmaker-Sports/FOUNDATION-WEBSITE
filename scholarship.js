@@ -63,13 +63,12 @@
     expenseInputs[0].setCustomValidity(expenseInputs.some(input => input.checked) ? '' : 'Choose at least one expense the scholarship would help cover.');
   }
 
-  function showReceived(reference, confirmationSent = null) {
+  function showReceived(reference) {
     accepting = false;
     form.hidden = true;
     statusBox.hidden = true;
     success.hidden = false;
     document.getElementById('application-reference').textContent = reference;
-    document.getElementById('confirmation-email-status').textContent = confirmationSent === true ? 'A thank-you email has been sent to your contact email. If you do not see it, check your spam folder. Keep this reference for your records.' : confirmationSent === false ? 'Your application was saved, but we could not confirm the thank-you email was sent. Keep this reference; you do not need to submit again.' : 'Keep this reference even if you do not receive a thank-you email. You do not need to submit again.';
   }
 
   async function checkAvailability() {
@@ -183,7 +182,7 @@
       const reference = result.application_id || submissionId;
       stored.set(receivedKey, reference);
       stored.remove(idKey);
-      showReceived(reference, result.already_submitted ? null : typeof result.confirmation_sent === 'boolean' ? result.confirmation_sent : null);
+      showReceived(reference);
       form.reset();
       success.focus();
       success.scrollIntoView({ behavior:'smooth', block:'start' });

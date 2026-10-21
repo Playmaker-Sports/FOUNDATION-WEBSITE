@@ -1,4 +1,4 @@
-"""Public Foundation scholarship intake, with the private Sheet as its record.
+"""Retired-by-default custom intake; native Google Forms is the public intake.
 
 The configured Gunicorn deployment has one worker and multiple threads. A shared
 lock plus a persistent submission-ID lookup makes retries safe in that deployment,
@@ -7,7 +7,6 @@ would require a shared transactional idempotency store before scaling this flow.
 """
 
 from datetime import date, datetime, timezone
-from email.utils import parseaddr
 import json
 import logging
 import os
@@ -85,6 +84,12 @@ def utc_now():
 
 def applications_open(now=None):
     return (now or utc_now()) < DEADLINE_EXCLUSIVE
+
+
+def custom_api_enabled():
+    # Credentials left on Render must not silently keep the superseded intake
+    # live. An intentional rollback requires this separate, explicit opt-in.
+    return os.environ.get('FOUNDATION_SCHOLARSHIP_API_ENABLED', '').strip() == 'true'
 
 
 def validate_application(payload, now=None):
@@ -234,24 +239,6 @@ def _save_application(application, load_credentials, build_service, authorized_h
         return submitted_at, False
 
 
-def _email_settings():
-    staff_email = os.environ.get('FOUNDATION_SCHOLARSHIP_TO_EMAIL', 'info@playmakersportsfoundation.org').strip()
-    # This service has its own Foundation credentials and sender. Never fall back
-    # to the tournament company's sending domain or another service's secrets.
-    sender = os.environ.get('FOUNDATION_SCHOLARSHIP_FROM_EMAIL', '').strip()
-    return staff_email, sender
-
-
-def _email_configuration_present():
-    staff_email, sender = _email_settings()
-    sender_address = parseaddr(sender)[1]
-    return bool(
-        os.environ.get('RESEND_API_KEY', '').strip()
-        and EMAIL_PATTERN.fullmatch(staff_email)
-        and EMAIL_PATTERN.fullmatch(sender_address)
-    )
-
-
 def _default_load_credentials(scopes):
     """Load only credentials explicitly configured on this Foundation service."""
     from google.oauth2 import service_account
@@ -275,60 +262,10 @@ def _default_authorized_http(credentials):
     return google_auth_httplib2.AuthorizedHttp(credentials, http=httplib2.Http(timeout=120))
 
 
-def _default_send_email(sender, recipient, reply_to, subject, body):
-    import requests
-
-    api_key = os.environ.get('RESEND_API_KEY', '').strip()
-    if not api_key or not sender or not recipient or not reply_to:
-        raise RuntimeError('Scholarship email delivery is not configured')
-    response = requests.post(
-        'https://api.resend.com/emails',
-        headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
-        json={'from': sender, 'to': [recipient], 'reply_to': reply_to, 'subject': subject, 'text': body},
-        timeout=15,
-    )
-    response.raise_for_status()
-
-
-def _notify_staff(application_id, submitted_at, send_email):
-    recipient, sender = _email_settings()
-    sheet_id, _, _ = _sheet_settings()
-    body = (
-        f'A new {AWARD_NAME} application was saved.\n\n'
-        f'Application ID: {application_id}\nSubmitted at (UTC): {submitted_at}\n\n'
-        f'Review the full response in the private application spreadsheet:\n'
-        f'https://docs.google.com/spreadsheets/d/{sheet_id}/edit\n\n'
-        'Verify Cup participation and financial need before selection. Request paid club-fee '
-        'or soccer-equipment receipts only from the selected recipient. Reimburse documented '
-        'eligible expenses up to $500, with a guardian handling payment for a minor. '
-        'Record the selection reason, receipts, and payment in the private review columns.\n'
-    )
-    send_email(sender, recipient, recipient, 'New Foundation scholarship application', body)
-
-
-def _confirm_application(application, send_email):
-    staff_email, sender = _email_settings()
-    recipient = application['guardian_email'] if application['age_at_submission'] < 18 else application['applicant_email']
-    body = (
-        f'Thank you for applying for the {AWARD_NAME}. We received your application.\n\n'
-        f"Application reference: {application['submission_id']}\n\n"
-        'Applications close November 20, 2026 at 11:59 PM Pacific. '
-        'The Foundation will review your application. This email confirms receipt; '
-        'it does not mean an award has been granted.\n\n'
-        'You do not need to send receipts now. We will request paid club soccer fee '
-        'or soccer equipment receipts only from the selected recipient.\n\n'
-        f'For questions or corrections, reply to this email or contact {staff_email} '
-        'and include your application reference.\n\n'
-        'Playmaker Sports Foundation\n'
-    )
-    send_email(sender, recipient, staff_email, 'We received your Foundation scholarship application', body)
-
-
-def register_scholarship_routes(app, limiter, *, load_credentials=None, build_service=None, authorized_http=None, send_email=None):
+def register_scholarship_routes(app, limiter, *, load_credentials=None, build_service=None, authorized_http=None):
     load_credentials = load_credentials or _default_load_credentials
     build_service = build_service or _default_build_service
     authorized_http = authorized_http or _default_authorized_http
-    send_email = send_email or _default_send_email
     blueprint = Blueprint('foundation_scholarships', __name__)
     # Scoped here so the intake also works with older API deployments whose
     # global CORS allowlist predates the Foundation domain.
@@ -343,16 +280,14 @@ def register_scholarship_routes(app, limiter, *, load_credentials=None, build_se
     def scholarship_status():
         status = {
             'accepting_applications': False,
-            # Configuration presence is not a Google write or Resend delivery test.
-            'email_configured': _email_configuration_present(),
             'deadline': DEADLINE_DATE.isoformat(),
             'deadline_timezone': 'America/Los_Angeles',
             'deadline_label': 'November 20, 2026 at 11:59 PM Pacific',
         }
+        if not custom_api_enabled():
+            return jsonify(dict(status, reason='intake_retired'))
         if not applications_open():
             return jsonify(dict(status, reason='deadline_passed'))
-        if not status['email_configured']:
-            return jsonify(dict(status, reason='not_configured'))
         try:
             _sheet_client(load_credentials, build_service, authorized_http)
         except ScholarshipConfigurationError:
@@ -365,6 +300,11 @@ def register_scholarship_routes(app, limiter, *, load_credentials=None, build_se
     @blueprint.post('/api/foundation/scholarship-applications')
     @limiter.limit('5 per minute')
     def submit_scholarship_application():
+        if not custom_api_enabled():
+            return jsonify(
+                success=False, reason='intake_retired',
+                message='This form is no longer accepting applications. Please use the scholarship application linked on the Foundation website.',
+            ), 410
         now = utc_now()
         application, error = validate_application(request.get_json(silent=True), now=now)
         if error:
@@ -373,8 +313,6 @@ def register_scholarship_routes(app, limiter, *, load_credentials=None, build_se
             return jsonify(success=True)
         if not applications_open(now):
             return jsonify(success=False, message='The application deadline has passed.'), 410
-        if not _email_configuration_present():
-            return jsonify(success=False, message='Scholarship applications are not set up yet. Please try again later.'), 503
         try:
             submitted_at, duplicate = _save_application(
                 application, load_credentials, build_service, authorized_http,
@@ -390,28 +328,10 @@ def register_scholarship_routes(app, limiter, *, load_credentials=None, build_se
             logger.error('Scholarship application storage failed [%s]', type(exc).__name__)
             return jsonify(success=False, message='We could not confirm your application was saved. Please retry using this form.'), 502
 
-        notification_sent = False
-        confirmation_sent = False
-        if not duplicate:
-            try:
-                _notify_staff(application['submission_id'], submitted_at, send_email)
-                notification_sent = True
-            except Exception as exc:
-                # The saved application remains successful; avoid duplicate applications
-                # just because a staff notification could not be sent.
-                logger.error('Scholarship staff notification failed [%s]', type(exc).__name__)
-            try:
-                _confirm_application(application, send_email)
-                confirmation_sent = True
-            except Exception as exc:
-                # Staff and applicant delivery are independent of each other and
-                # of the successful save. Keep personal details out of logs.
-                logger.error('Scholarship application confirmation failed [%s]', type(exc).__name__)
         logger.info('Scholarship application saved id=%s duplicate=%s', application['submission_id'], duplicate)
         return jsonify(
             success=True, application_id=application['submission_id'],
             submitted_at=submitted_at, already_submitted=duplicate,
-            notification_sent=notification_sent, confirmation_sent=confirmation_sent,
         )
 
     app.register_blueprint(blueprint)

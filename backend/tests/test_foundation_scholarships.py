@@ -1,4 +1,4 @@
-"""Scholarship tests use mocked Google/Resend services and never save live data."""
+"""Scholarship tests use mocked Google services and never save live data."""
 
 from datetime import datetime, timezone
 import os
@@ -133,11 +133,9 @@ class ScholarshipValidationTests(unittest.TestCase):
 class ScholarshipEndpointTests(unittest.TestCase):
     def setUp(self):
         self.env = patch.dict(os.environ, {
+            'FOUNDATION_SCHOLARSHIP_API_ENABLED': 'true',
             'FOUNDATION_SCHOLARSHIP_SHEET_ID': 'private-test-sheet',
             'FOUNDATION_SCHOLARSHIP_SHEET_RANGE': 'Applications!A:AJ',
-            'FOUNDATION_SCHOLARSHIP_TO_EMAIL': 'staff@example.com',
-            'FOUNDATION_SCHOLARSHIP_FROM_EMAIL': 'Foundation <registration@example.com>',
-            'RESEND_API_KEY': 're_test-key',
         })
         self.env.start()
         self.addCleanup(self.env.stop)
@@ -147,7 +145,6 @@ class ScholarshipEndpointTests(unittest.TestCase):
         self.load_credentials = MagicMock(return_value='credentials')
         self.build_service = MagicMock()
         self.authorized_http = MagicMock(return_value='authorized-http')
-        self.send_email = MagicMock()
         self.values = self.build_service.return_value.spreadsheets.return_value.values.return_value
         self.headers = list(scholarships.SHEET_COLUMNS)
         self.rows = []
@@ -178,7 +175,7 @@ class ScholarshipEndpointTests(unittest.TestCase):
         scholarships.register_scholarship_routes(
             app, self.limiter,
             load_credentials=self.load_credentials, build_service=self.build_service,
-            authorized_http=self.authorized_http, send_email=self.send_email,
+            authorized_http=self.authorized_http,
         )
         self.client = app.test_client()
 
@@ -188,7 +185,6 @@ class ScholarshipEndpointTests(unittest.TestCase):
         self.assertTrue(response.json['accepting_applications'])
         self.assertEqual(response.json['deadline_timezone'], 'America/Los_Angeles')
         self.values.append.assert_not_called()
-        self.send_email.assert_not_called()
 
     def test_unconfigured_or_mismatched_sheet_never_advertises_ready(self):
         with patch.dict(os.environ, {'FOUNDATION_SCHOLARSHIP_SHEET_ID': ''}):
@@ -199,21 +195,6 @@ class ScholarshipEndpointTests(unittest.TestCase):
         self.assertFalse(self.client.get(f'{ROUTE}/status').json['accepting_applications'])
         self.assertEqual(self.client.post(ROUTE, json=valid_application()).status_code, 503)
         self.values.append.assert_not_called()
-        self.send_email.assert_not_called()
-
-    def test_missing_email_configuration_prevents_save_and_notification(self):
-        for settings in (
-            {'FOUNDATION_SCHOLARSHIP_FROM_EMAIL': ''},
-            {'RESEND_API_KEY': ''},
-            {'FOUNDATION_SCHOLARSHIP_TO_EMAIL': ''},
-        ):
-            with self.subTest(settings=settings), patch.dict(os.environ, settings):
-                response = self.client.post(ROUTE, json=valid_application())
-                self.assertEqual(response.status_code, 503)
-                self.assertFalse(response.json['success'])
-        self.load_credentials.assert_not_called()
-        self.values.append.assert_not_called()
-        self.send_email.assert_not_called()
 
     def test_unavailable_sheet_status_is_closed(self):
         self.values.get.side_effect = TimeoutError('Read timed out')
@@ -221,14 +202,12 @@ class ScholarshipEndpointTests(unittest.TestCase):
         self.assertFalse(response.json['accepting_applications'])
         self.assertEqual(response.json['reason'], 'temporarily_unavailable')
 
-    def test_append_matches_template_preserves_formula_text_and_notifies_minimally(self):
+    def test_append_matches_template_preserves_formula_text_and_has_no_email_claims(self):
         payload = valid_application(applicant_name='=HYPERLINK("example")')
         response = self.client.post(ROUTE, json=payload)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json['success'])
         self.assertEqual(response.json['application_id'], payload['submission_id'])
-        self.assertTrue(response.json['notification_sent'])
-        self.assertTrue(response.json['confirmation_sent'])
         kwargs = self.values.append.call_args.kwargs
         self.assertEqual(kwargs['valueInputOption'], 'RAW')
         self.assertEqual(kwargs['insertDataOption'], 'INSERT_ROWS')
@@ -243,42 +222,25 @@ class ScholarshipEndpointTests(unittest.TestCase):
         self.assertEqual(row['Award'], '2026 Playmakers Cup Student-Athlete Scholarship')
         self.assertEqual(row['Award maximum (USD)'], 500)
         self.load_credentials.assert_called_with(scholarships.SHEETS_SCOPE)
-        self.assertEqual(self.send_email.call_count, 2)
-        staff, confirmation = [call.args for call in self.send_email.call_args_list]
-        self.assertEqual(staff[:3], ('Foundation <registration@example.com>', 'staff@example.com', 'staff@example.com'))
-        self.assertEqual(confirmation[:3], ('Foundation <registration@example.com>', payload['guardian_email'], 'staff@example.com'))
-        self.assertEqual(staff[3], 'New Foundation scholarship application')
-        self.assertEqual(confirmation[3], 'We received your Foundation scholarship application')
-        for email in (staff, confirmation):
-            body = email[-1]
-            self.assertIn('2026 Playmakers Cup Student-Athlete Scholarship', body)
-            self.assertIn(payload['submission_id'], body)
-            for private_value in (payload['applicant_name'], payload['date_of_birth'], payload['financial_need'], payload['guardian_email'], payload['growth']):
-                self.assertNotIn(private_value, body)
-        self.assertIn('Thank you for applying', confirmation[-1])
-        self.assertIn('November 20, 2026 at 11:59 PM Pacific', confirmation[-1])
-        self.assertIn('does not mean an award has been granted', confirmation[-1])
-        self.assertIn('You do not need to send receipts now.', confirmation[-1])
+        self.assertEqual(set(response.json), {'success', 'application_id', 'submitted_at', 'already_submitted'})
 
-    def test_minor_confirmation_goes_only_to_guardian_even_with_personal_email(self):
-        payload = valid_application(applicant_email='minor@example.com')
-        response = self.client.post(ROUTE, json=payload)
-        self.assertTrue(response.json['confirmation_sent'])
-        recipients = [call.args[1] for call in self.send_email.call_args_list]
-        self.assertEqual(recipients, ['staff@example.com', 'parent@example.com'])
-        self.assertNotIn('minor@example.com', recipients)
+    def test_save_and_readiness_need_no_email_configuration_and_send_no_mail(self):
+        with patch.dict(os.environ, {
+            'RESEND_API_KEY': '', 'FOUNDATION_SCHOLARSHIP_FROM_EMAIL': '',
+            'FOUNDATION_SCHOLARSHIP_TO_EMAIL': '',
+        }), patch('requests.post') as outbound_post:
+            status = self.client.get(f'{ROUTE}/status')
+            response = self.client.post(ROUTE, json=valid_application())
+        self.assertTrue(status.json['accepting_applications'])
+        self.assertNotIn('email_configured', status.json)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json['success'])
+        self.assertNotIn('notification_sent', response.json)
+        self.assertNotIn('confirmation_sent', response.json)
+        outbound_post.assert_not_called()
+        self.values.append.assert_called_once()
 
-    def test_adult_confirmation_goes_only_to_applicant(self):
-        payload = valid_application(
-            date_of_birth='2008-10-15', grade_level='12th grade',
-            applicant_email='adult@example.com', guardian_ack=False,
-        )
-        response = self.client.post(ROUTE, json=payload)
-        self.assertTrue(response.json['confirmation_sent'])
-        recipients = [call.args[1] for call in self.send_email.call_args_list]
-        self.assertEqual(recipients, ['staff@example.com', 'adult@example.com'])
-
-    def test_duplicate_submission_id_returns_success_without_duplicate_row_or_email(self):
+    def test_duplicate_submission_id_returns_success_without_duplicate_row(self):
         payload = valid_application()
         first = self.client.post(ROUTE, json=payload)
         retry = self.client.post(ROUTE, json=payload)
@@ -287,45 +249,12 @@ class ScholarshipEndpointTests(unittest.TestCase):
         self.assertTrue(retry.json['already_submitted'])
         self.assertEqual(retry.json['submitted_at'], first.json['submitted_at'])
         self.values.append.assert_called_once()
-        self.assertEqual(self.send_email.call_count, 2)
-        self.assertFalse(retry.json['confirmation_sent'])
 
-    def test_save_remains_successful_when_staff_email_fails(self):
-        self.send_email.side_effect = RuntimeError('Resend unavailable')
-        response = self.client.post(ROUTE, json=valid_application())
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.json['success'])
-        self.assertFalse(response.json['notification_sent'])
-        self.assertFalse(response.json['confirmation_sent'])
-        self.assertEqual(self.send_email.call_count, 2)
-        self.values.append.assert_called_once()
-
-    def test_staff_delivery_failure_does_not_suppress_applicant_confirmation(self):
-        self.send_email.side_effect = [RuntimeError('Staff delivery failed'), None]
-        response = self.client.post(ROUTE, json=valid_application())
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.json['success'])
-        self.assertFalse(response.json['notification_sent'])
-        self.assertTrue(response.json['confirmation_sent'])
-        self.assertEqual(self.send_email.call_count, 2)
-        self.values.append.assert_called_once()
-
-    def test_applicant_delivery_failure_preserves_saved_success_and_staff_notification(self):
-        self.send_email.side_effect = [None, RuntimeError('Applicant delivery failed')]
-        response = self.client.post(ROUTE, json=valid_application())
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.json['success'])
-        self.assertTrue(response.json['notification_sent'])
-        self.assertFalse(response.json['confirmation_sent'])
-        self.assertEqual(self.send_email.call_count, 2)
-        self.values.append.assert_called_once()
-
-    def test_storage_failure_does_not_report_success_or_send_email(self):
+    def test_storage_failure_does_not_report_success(self):
         self.values.append.side_effect = TimeoutError('Append timed out')
         response = self.client.post(ROUTE, json=valid_application())
         self.assertEqual(response.status_code, 502)
         self.assertFalse(response.json['success'])
-        self.send_email.assert_not_called()
 
     def test_uncertain_save_retry_finds_already_saved_row(self):
         def timed_out_append(**kwargs):
@@ -362,7 +291,6 @@ class ScholarshipEndpointTests(unittest.TestCase):
         self.assertIn('latest edits have not been saved', retry.json['message'])
         self.assertEqual(self.rows[0], original_row)
         self.values.append.assert_called_once()
-        self.send_email.assert_not_called()
 
     def test_identical_retry_ignores_generated_age_and_staff_columns_and_trailing_blanks(self):
         payload = valid_application()
@@ -390,13 +318,11 @@ class ScholarshipEndpointTests(unittest.TestCase):
         response = self.client.post(ROUTE, json={'_honey': 'spam'})
         self.assertEqual(response.status_code, 200)
         self.load_credentials.assert_not_called()
-        self.send_email.assert_not_called()
 
-    def test_ineligible_grade_never_saves_or_sends(self):
+    def test_ineligible_grade_never_saves(self):
         response = self.client.post(ROUTE, json=valid_application(grade_level='College'))
         self.assertEqual(response.status_code, 400)
         self.load_credentials.assert_not_called()
-        self.send_email.assert_not_called()
 
     def test_public_post_is_rate_limited_before_storage(self):
         app = Flask('scholarship_rate_limit_test')
@@ -405,7 +331,7 @@ class ScholarshipEndpointTests(unittest.TestCase):
         scholarships.register_scholarship_routes(
             app, limiter,
             load_credentials=self.load_credentials, build_service=self.build_service,
-            authorized_http=self.authorized_http, send_email=self.send_email,
+            authorized_http=self.authorized_http,
         )
         client = app.test_client()
         responses = [client.post(ROUTE, json={}) for _ in range(6)]
@@ -419,14 +345,11 @@ class ScholarshipEndpointTests(unittest.TestCase):
         limiter = Limiter(get_remote_address, app=app)
         with patch.object(scholarships, '_default_load_credentials', self.load_credentials), \
                 patch.object(scholarships, '_default_build_service', self.build_service), \
-                patch.object(scholarships, '_default_authorized_http', self.authorized_http), \
-                patch.object(scholarships, '_default_send_email', self.send_email):
+                patch.object(scholarships, '_default_authorized_http', self.authorized_http):
             scholarships.register_scholarship_routes(app, limiter)
         response = app.test_client().post(ROUTE, json=valid_application())
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.json['confirmation_sent'])
         self.values.append.assert_called_once()
-        self.assertEqual(self.send_email.call_count, 2)
 
     def test_legacy_global_error_handler_and_cors_do_not_break_foundation_rate_limits(self):
         app = Flask('scholarship_legacy_api_test')
@@ -441,7 +364,7 @@ class ScholarshipEndpointTests(unittest.TestCase):
         scholarships.register_scholarship_routes(
             app, limiter,
             load_credentials=self.load_credentials, build_service=self.build_service,
-            authorized_http=self.authorized_http, send_email=self.send_email,
+            authorized_http=self.authorized_http,
         )
         client = app.test_client()
         for origin in scholarships.FOUNDATION_ORIGINS:
@@ -491,35 +414,6 @@ class ScholarshipDefaultAdapterTests(unittest.TestCase):
         http.assert_called_once_with(timeout=120)
         authorized.assert_called_once_with('test-credentials', http=http.return_value)
         self.assertIs(transport, authorized.return_value)
-
-    def test_default_resend_adapter_contract_and_delivery_error(self):
-        with patch.dict(os.environ, {'RESEND_API_KEY': 're_test-key'}), patch('requests.post') as post:
-            scholarships._default_send_email('Foundation <sender@example.com>', 'parent@example.com', 'staff@example.com', 'Received', 'Thank you')
-            post.assert_called_once_with(
-                'https://api.resend.com/emails',
-                headers={'Authorization': 'Bearer re_test-key', 'Content-Type': 'application/json'},
-                json={
-                    'from': 'Foundation <sender@example.com>', 'to': ['parent@example.com'],
-                    'reply_to': 'staff@example.com', 'subject': 'Received', 'text': 'Thank you',
-                },
-                timeout=15,
-            )
-            post.return_value.raise_for_status.assert_called_once()
-            post.return_value.raise_for_status.side_effect = RuntimeError('Delivery failed')
-            with self.assertRaises(RuntimeError):
-                scholarships._default_send_email('sender@example.com', 'parent@example.com', 'staff@example.com', 'Received', 'Thank you')
-
-    def test_unconfigured_email_does_not_attempt_delivery(self):
-        with patch.dict(os.environ, {'RESEND_API_KEY': ''}), patch('requests.post') as post:
-            with self.assertRaises(RuntimeError):
-                scholarships._default_send_email('sender@example.com', 'parent@example.com', 'staff@example.com', 'Received', 'Thank you')
-        post.assert_not_called()
-
-    def test_sender_has_no_company_fallback(self):
-        with patch.dict(os.environ, {'FOUNDATION_SCHOLARSHIP_FROM_EMAIL': '', 'RESEND_API_KEY': 're_test-key'}):
-            self.assertEqual(scholarships._email_settings()[1], '')
-            self.assertFalse(scholarships._email_configuration_present())
-
 
 class ScholarshipAPIIntegrationTests(unittest.TestCase):
     def test_real_api_has_public_routes_and_foundation_only_cors(self):

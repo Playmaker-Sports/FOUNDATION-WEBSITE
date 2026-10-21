@@ -1,13 +1,8 @@
 name: Foundation keep-alive
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/foundation-keepalive.yml
-  schedule:
-    # Ten-minute intervals, offset from the start of the hour to reduce queues.
-    - cron: '3,13,23,33,43,53 * * * *'
+  # Native Google Forms does not use Render. Keep only a manual rollback
+  # diagnostic; do not automatically keep the retired custom API warm.
   workflow_dispatch:
 
 # No checkout, credentials, application data, or repository permissions needed.

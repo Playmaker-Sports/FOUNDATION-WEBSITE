@@ -23,17 +23,17 @@ class FoundationAppTests(unittest.TestCase):
         clock.start()
         self.addCleanup(clock.stop)
         self.env = patch.dict(os.environ, {
+            # Exercise the preserved fallback deliberately; production defaults
+            # to retired and has separate no-opt-in tests below.
+            'FOUNDATION_SCHOLARSHIP_API_ENABLED': 'true',
             'FOUNDATION_SCHOLARSHIP_SHEET_ID': '',
             'GOOGLE_CREDENTIALS': '',
-            'FOUNDATION_SCHOLARSHIP_FROM_EMAIL': '',
-            'FOUNDATION_SCHOLARSHIP_TO_EMAIL': 'staff@example.com',
-            'RESEND_API_KEY': '',
         })
         self.env.start()
         self.addCleanup(self.env.stop)
         self.adapters = {
             name: Mock(side_effect=AssertionError('No external service should be used'))
-            for name in ('load_credentials', 'build_service', 'authorized_http', 'send_email')
+            for name in ('load_credentials', 'build_service', 'authorized_http')
         }
         self.app = create_app({'TESTING': True, 'RATELIMIT_ENABLED': False}, **self.adapters)
         self.client = self.app.test_client()
@@ -62,11 +62,39 @@ class FoundationAppTests(unittest.TestCase):
         response = self.client.get(f'{ROUTE}/status')
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.json['accepting_applications'])
-        self.assertFalse(response.json['email_configured'])
+        self.assertNotIn('email_configured', response.json)
         self.assertEqual(response.json['reason'], 'not_configured')
         self.adapters['load_credentials'].assert_not_called()
 
-    def test_present_email_settings_are_not_a_delivery_check(self):
+    def test_retired_by_default_rejects_before_json_or_google_even_with_old_config(self):
+        with patch.dict(os.environ, {
+            'FOUNDATION_SCHOLARSHIP_SHEET_ID': 'private-test-sheet',
+            'GOOGLE_CREDENTIALS': 'not-read-retired-placeholder',
+        }), patch('flask.wrappers.Request.get_json', side_effect=AssertionError('Do not parse retired submissions')):
+            os.environ.pop('FOUNDATION_SCHOLARSHIP_API_ENABLED', None)
+            status = self.client.get(f'{ROUTE}/status', headers={'Origin': scholarships.FOUNDATION_ORIGINS[0]})
+            response = self.client.post(ROUTE, data='not-json', content_type='application/json',
+                                        headers={'Origin': scholarships.FOUNDATION_ORIGINS[0]})
+        self.assertEqual(status.status_code, 200)
+        self.assertFalse(status.json['accepting_applications'])
+        self.assertEqual(status.json['reason'], 'intake_retired')
+        self.assertEqual(response.status_code, 410)
+        self.assertFalse(response.json['success'])
+        self.assertEqual(response.json['reason'], 'intake_retired')
+        self.assertEqual(response.headers['Access-Control-Allow-Origin'], scholarships.FOUNDATION_ORIGINS[0])
+        self.assertEqual(self.client.get('/health').status_code, 200)
+        for adapter in self.adapters.values():
+            adapter.assert_not_called()
+
+    def test_api_rollback_requires_exact_explicit_true(self):
+        for value in ('', 'false', '0', '1', 'yes', 'TRUE', 'enabled'):
+            with self.subTest(value=value), patch.dict(os.environ, {'FOUNDATION_SCHOLARSHIP_API_ENABLED': value}):
+                self.assertEqual(self.client.get(f'{ROUTE}/status').json['reason'], 'intake_retired')
+                self.assertEqual(self.client.post(ROUTE, json=valid_application()).status_code, 410)
+        for adapter in self.adapters.values():
+            adapter.assert_not_called()
+
+    def test_sheet_readiness_is_not_a_write_or_notification_check(self):
         self.adapters['load_credentials'].side_effect = None
         self.adapters['build_service'].side_effect = None
         self.adapters['authorized_http'].side_effect = None
@@ -74,26 +102,11 @@ class FoundationAppTests(unittest.TestCase):
         values.get.return_value.execute.return_value = {'values': [list(scholarships.SHEET_COLUMNS)]}
         with patch.dict(os.environ, {
             'FOUNDATION_SCHOLARSHIP_SHEET_ID': 'private-test-sheet',
-            'FOUNDATION_SCHOLARSHIP_FROM_EMAIL': 'Foundation <scholarships@example.com>',
-            'RESEND_API_KEY': 're_test-not-a-real-key',
         }):
             response = self.client.get(f'{ROUTE}/status')
         self.assertTrue(response.json['accepting_applications'])
-        self.assertTrue(response.json['email_configured'])
-        self.adapters['send_email'].assert_not_called()
+        self.assertNotIn('email_configured', response.json)
         values.append.assert_not_called()
-
-    def test_missing_sender_or_key_prevents_availability(self):
-        for settings in (
-            {'FOUNDATION_SCHOLARSHIP_FROM_EMAIL': '', 'RESEND_API_KEY': 're_test-key'},
-            {'FOUNDATION_SCHOLARSHIP_FROM_EMAIL': 'Foundation <scholarships@example.com>', 'RESEND_API_KEY': ''},
-            {'FOUNDATION_SCHOLARSHIP_FROM_EMAIL': 'not an email', 'RESEND_API_KEY': 're_test-key'},
-        ):
-            with self.subTest(settings=settings), patch.dict(os.environ, settings):
-                response = self.client.get(f'{ROUTE}/status')
-                self.assertFalse(response.json['accepting_applications'])
-                self.assertFalse(response.json['email_configured'])
-        self.adapters['load_credentials'].assert_not_called()
 
     def test_oversize_request_returns_json_413_with_foundation_cors(self):
         response = self.client.post(

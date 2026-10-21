@@ -1,106 +1,96 @@
 # 2026 Playmakers Cup scholarship: setup and administration
 
-The first-party application is `scholarship.html`, linked from Home, Programs, and every main navigation/footer. It does not use Google Forms. Its standalone Foundation API lives in this repository's `backend/` folder and saves to a private Foundation Google Sheet, with a minimal staff notification and a separate applicant thank-you through Resend.
+## Approved target and current status
 
-## Current release status
+The approved intake is a **native Google Form owned by theplaymakersportsfoundation@gmail.com**, linked to a private Google Sheet in that account's Drive. Applicants must be able to respond without signing in. Staff will use Google's native new-response notifications. Do not send automatic applicant emails or response copies, or configure Resend, Gmail API sending, or a MailApp substitute.
 
-Code and a blank 36-column workbook template are prepared. This document is not evidence that a live Sheet, credentials, email, or deployment has been configured. The website stays on GitHub Pages from `Playmaker-Sports/FOUNDATION-WEBSITE` `main`, behind Cloudflare. Deploy the API as a separate free Web Service in the **Playmaker Sports Foundation** Render workspace. Do not use the company API, company environment groups, or company credentials.
+The native Google Form was **created successfully on October 20, 2026**, with 24 questions and seven layout items. It is linked to the existing private Foundation spreadsheet, where Forms created **Form Responses 1** with a timestamp column and 24 answer columns. Drive metadata confirmed Foundation ownership of both files. The linked response Sheet remains owner-only; publishing a responder link does not make the response Sheet public.
 
-The shipped scholarship form has a blank `action` and `data-api-pending="true"`. It makes no intake requests until the new Foundation deployment is verified and explicitly connected. A local `file:` preview displays the form but cannot submit. Creating a Render workspace or getting a healthy `/health` response does not mean applications are open.
+The owner enabled Google's new-response email notifications in the Form UI. Applicant response receipts, the one-response limit, and respondent results summaries are off, and the confirmation message is set. Automatic applicant emails are off in settings; their non-delivery was not separately tested. Native Form preview checks with fictional details verified both paths: under-18 applicants must provide guardian name, email, and acknowledgment (their own email is optional), then reach the Cup section without the adult section; adults must provide their own email, then reach the Cup section without the guardian section.
+
+The user authorized publishing, connecting the website, pushing changes, and one fictional end-to-end submission. **The Form is published for Anyone with the link**, and its native closing deadline was saved and verified as **November 20, 2026, at 11:59 p.m. PST**. One authorized fictional minor application was submitted while signed out on **October 20, 2026, at 5:35:57 p.m. Pacific**. Google displayed the successful confirmation, and row 2 of the native linked response tab matched all 24 question fields, including the correctly blank optional publicity, minor applicant-email, and skipped adult-email fields. The response Sheet's owner-only access was verified again. The Foundation owner's Gmail received Google's native new-response notification at **5:36 p.m. Pacific**. Both age routes were preview-tested; only the minor route has an actual signed-out submission.
+
+The clearly labeled **TEST ONLY — DO NOT REVIEW** response is intentionally retained and must be excluded from scholarship selection. No test-response deletion was authorized. This release connects the website through Google's supported native iframe and a direct responder-link fallback. Verify the deployed page after publishing each release; the eventual deadline closed-state behavior remains untested.
+
+The website remains on GitHub Pages from Playmaker-Sports/FOUNDATION-WEBSITE main, behind Cloudflare. This release replaces the custom form with the native Form embed, not an API connection, and removes Foundation email sending. The backend is a **disabled-by-default, storage-only fallback**, not the native Form or a source of Google response notifications. A local or GitHub update alone does not establish that the deployed website or backend has been updated; verify the public page and deployed API status separately.
+
+Do not put private Sheet IDs/URLs, Form edit URLs, credentials, applications, or receipts in this public repository. Only a verified public **responder** link or embed URL belongs on the website. Keep Foundation ownership and access separate from the tournament company.
 
 ## Agreed award rules
 
 - One recipient, a need-based soccer scholarship of up to $500.
 - Applicants must currently be in grades 6–12 and be registered players participating with a team in the 2026 Playmakers Cup. Staff verify participation against tournament registration records. There is no separate age cutoff; applicants under 18 require guardian acknowledgment.
-- Application deadline: November 20, 2026, at 11:59 p.m. America/Los_Angeles. The API rejects new submissions starting November 21 at midnight Pacific.
+- Application deadline: November 20, 2026, at 11:59 p.m. America/Los_Angeles. The matching native Form close time is saved as 11:59 p.m. PST; eventual closed-state behavior remains untested. The API deadline does not close a Google Form.
+- **A selection date has not been set.** Do not invent an announcement, decision, or payment date.
 - Selection is based on demonstrated financial need and the application. Receipts substantiate expenses, not financial need.
 - Only the selected recipient supplies paid club soccer fee or soccer equipment receipts, before reimbursement. Pay the smaller of $500 or total eligible documented expenses; a guardian handles payment for a minor.
 - Publicity contact permission is optional and does not affect selection. Obtain separate permission before publishing identifying information or photos; obtain guardian permission for minors.
 - The application makes no promise that an award is tax-free. These rules do not establish a recipient's tax treatment or replace accounting/reporting review.
 
-## 1. One-time private Google Sheet setup
+## 1. Create the native Form and private response Sheet
 
-1. Import the prepared `templates/2026-playmakers-cup-applications.xlsx` into the Foundation's Google Drive as a **native Google Sheets spreadsheet**, not just an uploaded Excel file. It has `Applications` and `Review guide` tabs and no applicant data. Keep this repository template blank; real applications and receipts belong only in restricted Foundation storage, never GitHub.
-2. Keep the `Applications` tab name and its exact 36 headers in A1:AJ1. The backend validates them. Do not reorder/delete columns. Staff may filter the Sheet, but should avoid sorting or editing while an application is being saved.
-3. Restrict general access to **Restricted**. Give access only to authorized Foundation reviewers and the website's Google service account. Do not enable anyone-with-the-link access or publish the spreadsheet to the web.
-4. Create or use a Google Cloud project and service account controlled by the Foundation. From that account's `GOOGLE_CREDENTIALS` JSON, use only the `client_email` value to share this Sheet as **Editor**. Store the complete JSON only as a secret on the new Foundation Render service. Do not copy the company's credentials, and never paste a private key into chat, a spreadsheet, the website, or GitHub.
-5. Confirm the Google Sheets API is enabled in that service account's Google Cloud project.
-6. Copy the spreadsheet ID from the native Sheet URL: the text between `/d/` and `/edit`.
+1. Create the Form while signed in as the Foundation account above. Preserve the approved applicant information, Cup participation, soccer/personal-development, financial-need, expense, and acknowledgment questions. Financial need remains required; expense choices remain club soccer fees and soccer equipment.
+2. Preserve minor/adult contact and consent requirements using verified section branching. Under-18 applicants need guardian name, email, and acknowledgment; adults need their own contact email. Do not assume Forms automatically calculates these requirements from DOB.
+3. Retain contact-email questions for later staff follow-up, but turn off automatic verified-email collection, response receipts, and applicant response-copy emails. Collecting a contact address is different from sending an email.
+4. Allow public responses without Google sign-in. Do not enable a one-response limit or organization restriction that requires sign-in. Do not add uploads; receipts are collected privately only from the selected recipient. Keep publicity consent separate and optional.
+5. From the Form's **Responses** area, link a spreadsheet owned by the Foundation. Keep general access **Restricted**, with access only for authorized Foundation reviewers. Do not publish it, enable anyone-with-link access, or expose response summaries/results to applicants.
+6. Let Forms create its linked response tab, commonly **Form Responses 1**, with timestamp/question-based columns. This is **not** the old 36-column Applications!A:AJ API schema. Linking an existing spreadsheet can create a new response tab rather than populating an old Applications tab. Verify the actual destination with a test response.
+7. Do not point the API at the native response tab or rename/reorder headers to make the schemas appear interchangeable. Preserve original answers; use a separate restricted review tab or deliberately verified staff area for review/payment records.
+8. Configure and verify closing on November 20, 2026, at 11:59 p.m. Pacific. Check what supported scheduled-close controls the account actually provides. If automatic closing is unavailable, document an explicit manual-closure plan rather than promising automatic closure. Test the closed-state message.
 
-The website uses this server-side service account, **not** a person's ChatGPT/Drive connector session. Google access tokens refresh automatically. Once configured, no recurring sign-in is required for normal submissions. Revoking Sheet access, disabling the account/API, or rotating/removing its key requires updating the setup. The ChatGPT Drive connection used to create/manage the document is separate and may occasionally need reauthorization.
+The native Forms/Sheets interface does not require the fallback Render service's service-account key or email-provider credentials. Do not route native responses through the company API or undocumented Google Form submission endpoints.
 
-## 2. One-time API configuration on Render
+The blank workbook at templates/2026-playmakers-cup-applications.xlsx remains an **API-fallback template**, not the native Form response schema. Keep it blank in GitHub. No private spreadsheet ID or edit URL belongs in these setup instructions.
 
-Choose **Web Services > New Web Service**, select `Playmaker-Sports/FOUNDATION-WEBSITE`, and use these settings in the Foundation workspace:
+## 2. Manually enable Foundation staff notifications
 
-| Setting | Value |
-| --- | --- |
-| Name | `playmaker-foundation-api` (or another available Foundation-only name) |
-| Language / runtime | Python 3 |
-| Branch | `main` |
-| Region | Oregon |
-| Root directory | `backend` |
-| Build command | `pip install -r requirements.txt` |
-| Start command | `gunicorn -c gunicorn.conf.py app:app` |
-| Instance type | Free |
-| Health check path | `/health` |
+While signed in as the Foundation account, open the native Form's **Responses** area, use its more-options menu, and enable **Get email notifications for new responses**. Confirm that the account enabling the setting is the intended staff recipient. Other authorized reviewers must configure their own notifications as needed; creating a Form does not automatically subscribe everyone.
 
-No database, disk, worker, or paid add-on is needed. Use the Python version pinned in `backend/.python-version`. A free workspace plan and the service's **Free** instance type are separate choices; verify both before creating the service.
+This is native **Google Form response** notification, not a Sheets “any changes” rule, an Apps Script edit trigger, or a custom applicant email. The backend cannot inspect or certify this setting. A Sheet edit, API append, or healthy Render service does not prove it works. Verify that an actual native Form response produces the intended Foundation notification.
 
-Configure these variables only on the new Foundation service:
+Do not promise unlimited responses, unlimited storage, immediate notification delivery, or uninterrupted availability. Google account/platform limits still apply. Review the private Form/Sheet during the application period; email is not the sole submission record.
 
-| Variable | Value |
-| --- | --- |
-| `FOUNDATION_SCHOLARSHIP_SHEET_ID` | ID of the private native Google Sheet |
-| `FOUNDATION_SCHOLARSHIP_SHEET_RANGE` | `Applications!A:AJ` |
-| `FOUNDATION_SCHOLARSHIP_TO_EMAIL` | Authorized staff inbox; defaults to `info@playmakersportsfoundation.org` |
-| `FOUNDATION_SCHOLARSHIP_FROM_EMAIL` | Explicit, verified Foundation-controlled Resend sender; there is no company-domain fallback |
-| `GOOGLE_CREDENTIALS` | Foundation-controlled Google service-account JSON, stored only as a server secret |
-| `RESEND_API_KEY` | Foundation-controlled Resend key, stored only as a server secret |
+## 3. Confirmation and website connection
 
-Use Foundation-controlled Google and email access, not the company's Google account, Resend key, sender, or shared environment groups. Verify the Foundation sending domain in Resend and confirm the Foundation inbox can receive notifications. Do not put secrets, real applications, or receipts in this public repository. `.gitignore` protects common local secret filenames, and GitHub Pages excludes `backend/`; neither is permission to commit sensitive files under a different name.
+Configure the native Form's confirmation message to thank the applicant, confirm submission for review, and explain that submission is not an award decision. Do not promise an applicant email or a selection date. It can include a link to the on-site next-steps page:
 
-The standalone `backend/app.py` does not import or start the company API. Keep Gunicorn at **one worker, four threads**, and one service instance. Duplicate protection uses a process lock plus a persistent Sheet lookup; do not increase the worker count or add replicas without replacing it with a shared transactional idempotency store.
+https://playmakersportsfoundation.org/scholarship-thank-you.html
 
-### Startup delays and optional uptime checks
+Google Forms does **not** automatically redirect the applicant to that page. Use an explicit confirmation-message link. Visiting the public thank-you page alone is not proof of a saved application. Do not promise custom API reference numbers or UUID duplicate protection for native Form responses.
 
-Free Render services can sleep or restart. The client allows up to 90 seconds for availability and submission requests and explains an availability wait after eight seconds. Failed/uncertain submissions retain their reference for safe manual retry; do not add automatic POST retries or a false success screen.
+Connect only the verified public Form responder link or supported embed to the website; the native iframe is now implemented locally, pending deployment verification. Keep the custom/API path disabled rather than reactivating a custom form. Native responses do not use Flask's per-IP rate limit or custom session-reference behavior.
 
-The deployed Foundation service is `https://foundation-website-7o9d.onrender.com`. Its independent GitHub Actions workflow, `.github/workflows/foundation-keepalive.yml`, requests the cheap `/health` endpoint about every ten minutes. It does not read the private Sheet, send emails, use secrets, or run the company API. It also runs when the workflow file is pushed and can be run manually from the repository's Actions tab. Confirm a successful run before reporting it as verified.
+## 4. Release verification before accepting applications
 
-The Foundation repository is public and the workflow uses a standard GitHub-hosted Ubuntu runner, without paid runners or uploaded artifacts. GitHub documents standard-runner usage as free for public repositories: https://docs.github.com/en/billing/concepts/product-billing/github-actions. If the repository becomes private, reassess its Actions usage before retaining this schedule.
+1. Confirm Foundation ownership and the intended restricted response destination. Keep private Sheet and Form-edit links out of GitHub.
+2. Test the real responder URL while signed out of Google, including a fresh private-browser session. It must not require sign-in, uploads, or organization membership. Confirm applicants cannot see other responses.
+3. Submit clearly labeled internal tests with invented details and an authorized staff contact address, not real child information. Test both minor/adult branches, required financial need and consents, expense choices, and optional publicity.
+4. Confirm every test appears correctly in the native linked response tab and the Foundation receives the native new-response notification. Confirm applicants receive no automatic emails or response copies.
+5. Check the confirmation message and optional next-steps link. Verify there is no claim of automatic redirect, an award decision, a selection date, or an unimplemented reference/duplicate guarantee.
+6. Verify and record the native closing-time setting or manual-closure plan and the closed-state message. The API's Pacific deadline is not a substitute.
+7. Remove only clearly identified internal test responses through the normal authorized cleanup process, checking Forms and Sheets as appropriate. Do not delete real applications or assume cleanup in one removes both copies.
+8. Publish the verified responder link/embed, then check desktop/mobile access from the scholarship page, Home, Programs, navigation, and footer. Confirm the custom form remains disabled and nothing targets the company API.
 
-This is a best-effort keep-alive, not guaranteed continuous uptime or a dedicated alerting service. GitHub can delay scheduled runs and disables public-repository schedules after 60 days without repository activity. Do not add automatic commits to evade that policy. Scheduled-run behavior: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule. Pings still consume Render running hours and do not remove usage limits or prove that Sheets/email works. Render's free-service limits: https://render.com/docs/free.
+## 5. Staff selection and reimbursement checklist
 
-## 3. Release verification
-
-1. Open the new service's actual URL plus `/health`, then `/api/foundation/scholarship-applications/status`. Before the deadline, status must return `accepting_applications: true`. The status check verifies the Sheet/header setup and email configuration presence, not write access or actual email delivery.
-2. Keep the public form pending while testing the new endpoint using a local/private QA configuration and an authorized staff email. Submit one clearly labeled internal test. Do not use real child information or redirect test submissions to the company API.
-3. Confirm exactly one application row appears with a reference matching the success screen. Confirm the Foundation inbox receives a Resend alert linking to the private Sheet; the alert deliberately omits essays, DOB, and contact details. Confirm a separate thank-you email reaches the guardian for a minor, or the applicant for someone 18 or older. That email includes the reference and next steps, not private application answers.
-4. Test a guardian-required applicant and an adult applicant. Confirm missing consents/expenses are blocked and optional publicity remains unchecked.
-5. Check a retry using the same submission reference does not create a second row. If the first save succeeded but edited answers are retried, HTTP 409 explains the earlier version was saved and corrections must be requested from staff.
-6. Remove only the clearly identified internal test row after verification through the normal authorized cleanup process. Do not delete real applications.
-7. Set the `scholarship.html` form's `action` to the **verified Foundation service URL** plus `/api/foundation/scholarship-applications` and set `data-api-pending="false"`. Publish that frontend change only after the previous checks pass. Do not guess an available Render hostname or leave the form pointed at the company API.
-8. Confirm Home/Programs promotions, all six main navigation links, and the Donate equipment-drive section in desktop and mobile layouts, and verify the live page is now talking only to the new Foundation API.
-
-Saving to Sheets happens before email. Staff notification and applicant thank-you are attempted independently, so failure of one does not suppress the other. An email delivery failure does not discard a saved application. The success screen distinguishes a sent thank-you from a failed send; it never asks a family to resubmit just to get an email. Ordinary retries do not send duplicate emails. If the response is lost after a successful Sheet write, a retry returns the existing reference; in that rare case one or both emails may be absent. Email delivery retries are not durably queued. Treat the private Sheet as the record of submissions and check it during the application period.
-
-## 4. Staff selection and reimbursement checklist
-
-1. Use the private review columns: **Review status**, **Cup participation verified**, **Financial need reviewed**, **Selection rationale**, **Approved reimbursement (USD)**, and **Receipts/payment record**. Preserve the original submitted answers and application ID.
+1. Use private review fields for **Review status**, **Cup participation verified**, **Financial need reviewed**, **Selection rationale**, **Approved reimbursement (USD)**, and **Receipts/payment record**. Preserve original answers and relate each review to the correct native response.
 2. Foundation reviewers assess the financial need described and verify tournament participation. Record a short, factual selection reason tied to the scholarship's charitable purpose. Do not require tax returns, SSNs, bank statements, or receipt uploads from all applicants.
 3. Have Foundation decision-makers approve the recipient independently of the tournament business's sales or promotion. Disclose and manage conflicts; do not favor insiders or require an additional tournament-business purchase to receive a scholarship. Keep the tournament-eligibility restriction in the policy/accounting review rather than assuming that restriction is automatically permissible or automatically prohibited.
-4. Contact the selected adult or guardian privately. Collect only receipts needed to show paid, eligible soccer expenses. Ask them to redact card numbers and other unrelated sensitive information. Store receipts in a separate restricted Foundation Drive folder, not in a public upload folder.
-5. Check the expense belongs to the recipient, was actually paid, is eligible, and is not being reimbursed twice. Record receipt dates, eligible total, approval, payee, payment date/reference, and a restricted receipt-folder link in **Receipts/payment record**. Never put bank account details in the application Sheet.
+4. Contact the selected adult or guardian privately. Collect only receipts needed to show paid, eligible soccer expenses. Ask them to redact card numbers and other unrelated sensitive information. Store receipts in a separate restricted Foundation Drive folder, not a public upload folder.
+5. Check the expense belongs to the recipient, was actually paid, is eligible, and is not being reimbursed twice. Record receipt dates, eligible total, approval, payee, payment date/reference, and a restricted receipt-folder link privately. Never put bank account details in the application Sheet.
 6. Reimburse no more than documented eligible costs and no more than $500. If the documents do not support the full award, request eligible receipts or pay only the supported amount. Record the Foundation approver and payment through the normal accounting process.
-7. Follow the Foundation accountant's instructions for recipient/payment documentation and any required reporting; do not tell families soccer receipts automatically make the payment tax-free. Keep access and retention consistent with the Foundation's records policy.
-8. Do not publish a recipient's name, photo, or story based solely on the application's optional contact checkbox. Obtain separate, specific permission first.
+7. Follow the Foundation accountant's instructions for recipient/payment documentation and required reporting; do not tell families soccer receipts automatically make payment tax-free. Keep access and retention consistent with the Foundation's records policy.
+8. Do not publish a recipient's name, photo, or story based solely on the optional contact checkbox. Obtain separate, specific permission first.
 
-## Technical reference
+## Storage-only API fallback reference
 
-- GET `/api/foundation/scholarship-applications/status`: readiness and deadline. Reasons include `not_configured`, `temporarily_unavailable`, and `deadline_passed`.
-- POST `/api/foundation/scholarship-applications`: validated JSON intake with UUIDv4 `submission_id` and grade restricted to `6th grade` through `12th grade`; returns a saved application reference only after storage succeeds. Success includes independent `notification_sent` and `confirmation_sent` flags; accepted email delivery does not guarantee placement in the inbox.
-- Responses: 400 invalid application, 409 earlier application with changed retry payload, 410 deadline passed, 429 rate limit, 502 uncertain/failed storage, 503 missing configuration.
-- Client session storage holds only the application reference, not an applicant's essays or personal details. Reloading an unsubmitted form does not restore a draft.
-- Backend source of truth for headers: `backend/foundation_scholarships.py`, `SHEET_COLUMNS`. User-provided values are appended with `valueInputOption='RAW'` to prevent formula execution.
-- Automated checks use mocked Google/Resend services. They do not establish that production credentials, private Sheet access, or live email work.
+The independent backend/app.py is disabled by default. Its preserved fallback saves applications only when deliberately enabled; it does not send staff or applicant emails, create a Google Form, or configure notifications. Resend/Gmail/MailApp sending is removed. See backend/README.md for isolated deployment settings; do not copy company credentials or environment groups.
+
+- GET /health is cheap liveness only. The deployed Foundation URL is https://foundation-website-7o9d.onrender.com. The independent .github/workflows/foundation-keepalive.yml now retains manual dispatch only; its automatic schedule and push triggers are removed. A manual diagnostic does not prove Form/Sheet/notification readiness, and native Forms does not need the retired API kept warm.
+- Leave FOUNDATION_SCHOLARSHIP_API_ENABLED unset or false. Only the exact value true intentionally enables an approved API rollback; existing Google credentials alone cannot enable it.
+- GET /api/foundation/scholarship-applications/status returns accepting_applications=false and reason=intake_retired without Google calls by default. Only under explicit opt-in does it check the fallback deadline and private Applications tab/header readiness. It never establishes native Form readiness, closing settings, or notification delivery.
+- POST /api/foundation/scholarship-applications returns HTTP 410 while retired, before parsing answers or contacting Google. Only under explicit opt-in does it preserve validated storage with the unchanged 36-column SHEET_COLUMNS schema and RAW values. The fallback requires financial need, grades 6–12, consents, and the Pacific deadline. UUID retries prevent duplicate API rows; changed answers under an already-saved UUID receive HTTP 409. These protections do not apply to native Forms.
+- A successful API save returns success, application_id, submitted_at, and already_submitted. The old notification_sent, confirmation_sent, and email_configured flags are removed.
+- Do not activate the fallback custom form or point it at a native response tab for the Google Forms launch. Choosing the fallback would require its own setup and verification.
+
+Render/GitHub limits still apply to the fallback and manual diagnostic. A manual health check does not guarantee continuous uptime or unlimited free usage. Google Forms itself does not depend on Render or this workflow. Automated backend tests use mocked Google services; they do not establish that the live native Form/Sheet/notification flow works.
