@@ -134,6 +134,7 @@ class ScholarshipEndpointTests(unittest.TestCase):
     def setUp(self):
         self.env = patch.dict(os.environ, {
             'FOUNDATION_SCHOLARSHIP_API_ENABLED': 'true',
+            'FOUNDATION_SCHOLARSHIP_STORE': 'sheet',
             'FOUNDATION_SCHOLARSHIP_SHEET_ID': 'private-test-sheet',
             'FOUNDATION_SCHOLARSHIP_SHEET_RANGE': 'Applications!A:AJ',
         })
@@ -316,7 +317,8 @@ class ScholarshipEndpointTests(unittest.TestCase):
         response = self.client.post(ROUTE, json=valid_application(financial_need=''))
         self.assertEqual(response.status_code, 400)
         response = self.client.post(ROUTE, json={'_honey': 'spam'})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(response.json['success'])
         self.load_credentials.assert_not_called()
 
     def test_ineligible_grade_never_saves(self):
@@ -419,7 +421,11 @@ class ScholarshipAPIIntegrationTests(unittest.TestCase):
     def test_real_api_has_public_routes_and_foundation_only_cors(self):
         from app import create_app
 
-        with patch.dict(os.environ, {'FOUNDATION_SCHOLARSHIP_SHEET_ID': ''}):
+        with patch.dict(os.environ, {
+            'FOUNDATION_SCHOLARSHIP_API_ENABLED': 'true',
+            'FOUNDATION_SCHOLARSHIP_STORE': 'sheet',
+            'FOUNDATION_SCHOLARSHIP_SHEET_ID': '',
+        }):
             client = create_app({'TESTING': True, 'RATELIMIT_ENABLED': False}).test_client()
             response = client.get(f'{ROUTE}/status', headers={'Origin': 'https://playmakersportsfoundation.org'})
             self.assertEqual(response.status_code, 200)

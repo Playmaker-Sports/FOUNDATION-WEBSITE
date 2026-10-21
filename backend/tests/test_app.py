@@ -26,6 +26,7 @@ class FoundationAppTests(unittest.TestCase):
             # Exercise the preserved fallback deliberately; production defaults
             # to retired and has separate no-opt-in tests below.
             'FOUNDATION_SCHOLARSHIP_API_ENABLED': 'true',
+            'FOUNDATION_SCHOLARSHIP_STORE': 'sheet',
             'FOUNDATION_SCHOLARSHIP_SHEET_ID': '',
             'GOOGLE_CREDENTIALS': '',
         })

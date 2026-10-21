@@ -1,4 +1,4 @@
-"""Retired-by-default custom intake; native Google Forms is the public intake.
+"""Default-off branded scholarship intake with an explicit storage adapter.
 
 The configured Gunicorn deployment has one worker and multiple threads. A shared
 lock plus a persistent submission-ID lookup makes retries safe in that deployment,
@@ -18,6 +18,8 @@ from zoneinfo import ZoneInfo
 from flask import Blueprint, jsonify, request
 from flask_cors import CORS
 
+from google_form_bridge import BridgeConfigurationError, BridgeError, GoogleFormBridge
+
 
 logger = logging.getLogger(__name__)
 SCHOLARSHIP_TIMEZONE = ZoneInfo('America/Los_Angeles')
@@ -34,12 +36,12 @@ TEXT_LIMITS = {
     'applicant_name': 200,
     'date_of_birth': 10,
     'grade_level': 100,
-    'city': 200,
+    'city': 120,
     'school': 200,
     'guardian_name': 200,
     'guardian_email': 254,
     'applicant_email': 254,
-    'club_team': 300,
+    'club_team': 250,
     'team_age_group': 100,
     'growth': 5000,
     'challenge': 5000,
@@ -87,9 +89,15 @@ def applications_open(now=None):
 
 
 def custom_api_enabled():
-    # Credentials left on Render must not silently keep the superseded intake
-    # live. An intentional rollback requires this separate, explicit opt-in.
+    # Credentials alone must never activate intake before deployment approval.
     return os.environ.get('FOUNDATION_SCHOLARSHIP_API_ENABLED', '').strip() == 'true'
+
+
+def _store_mode():
+    mode = os.environ.get('FOUNDATION_SCHOLARSHIP_STORE', '').strip()
+    if mode not in ('google_form', 'sheet'):
+        raise ScholarshipConfigurationError('Choose an explicit scholarship storage adapter')
+    return mode
 
 
 def validate_application(payload, now=None):
@@ -109,7 +117,7 @@ def validate_application(payload, now=None):
             return None, f'{field} is required'
         if len(value) > limit:
             return None, f'{field} is too long'
-        if any(ord(char) < 32 and char not in '\n\r\t' for char in value):
+        if any((ord(char) < 32 and char not in '\n\r\t') or ord(char) == 127 for char in value):
             return None, f'{field} contains invalid characters'
         clean[field] = value
 
@@ -266,6 +274,7 @@ def register_scholarship_routes(app, limiter, *, load_credentials=None, build_se
     load_credentials = load_credentials or _default_load_credentials
     build_service = build_service or _default_build_service
     authorized_http = authorized_http or _default_authorized_http
+    bridge = GoogleFormBridge()
     blueprint = Blueprint('foundation_scholarships', __name__)
     # Scoped here so the intake also works with older API deployments whose
     # global CORS allowlist predates the Foundation domain.
@@ -277,6 +286,7 @@ def register_scholarship_routes(app, limiter, *, load_credentials=None, build_se
         return jsonify(success=False, message='Too many requests. Please wait a minute and try again.'), 429
 
     @blueprint.get('/api/foundation/scholarship-applications/status')
+    @limiter.limit('60 per minute')
     def scholarship_status():
         status = {
             'accepting_applications': False,
@@ -289,9 +299,14 @@ def register_scholarship_routes(app, limiter, *, load_credentials=None, build_se
         if not applications_open():
             return jsonify(dict(status, reason='deadline_passed'))
         try:
+            if _store_mode() == 'google_form':
+                return jsonify(dict(status, **bridge.status()))
             _sheet_client(load_credentials, build_service, authorized_http)
-        except ScholarshipConfigurationError:
+        except (ScholarshipConfigurationError, BridgeConfigurationError):
             return jsonify(dict(status, reason='not_configured'))
+        except BridgeError as exc:
+            reason = exc.reason if exc.reason in ('deadline_passed', 'not_configured') else 'temporarily_unavailable'
+            return jsonify(dict(status, reason=reason))
         except Exception as exc:
             logger.warning('Scholarship intake availability check failed [%s]', type(exc).__name__)
             return jsonify(dict(status, reason='temporarily_unavailable'))
@@ -310,15 +325,28 @@ def register_scholarship_routes(app, limiter, *, load_credentials=None, build_se
         if error:
             return jsonify(success=False, message=error), 400
         if application.get('honeypot'):
-            return jsonify(success=True)
+            return jsonify(success=False, message='Unable to submit this application.'), 400
         if not applications_open(now):
             return jsonify(success=False, message='The application deadline has passed.'), 410
         try:
-            submitted_at, duplicate = _save_application(
-                application, load_credentials, build_service, authorized_http,
-            )
-        except ScholarshipConfigurationError:
+            if _store_mode() == 'google_form':
+                saved = bridge.submit(application)
+                submitted_at, duplicate = saved['submitted_at'], saved['already_submitted']
+            else:
+                submitted_at, duplicate = _save_application(
+                    application, load_credentials, build_service, authorized_http,
+                )
+        except (ScholarshipConfigurationError, BridgeConfigurationError):
             return jsonify(success=False, message='Scholarship applications are not set up yet. Please try again later.'), 503
+        except BridgeError as exc:
+            if exc.reason == 'conflict':
+                return jsonify(success=False, application_id=application['submission_id'],
+                               message='An earlier version of this application was already saved. Your latest edits have not been saved. Please contact the Foundation with your application ID to request a correction.'), 409
+            if exc.reason in ('closed', 'deadline_passed'):
+                return jsonify(success=False, message='Applications are closed.'), 410
+            status_code = 503 if exc.reason in ('unavailable', 'not_configured', 'temporarily_unavailable') else 502
+            logger.warning('Scholarship bridge request failed reason=%s', exc.reason)
+            return jsonify(success=False, message='We could not confirm your application was saved. Please retry using this form.'), status_code
         except ScholarshipConflictError:
             return jsonify(
                 success=False, application_id=application['submission_id'],
