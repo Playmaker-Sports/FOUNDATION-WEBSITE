@@ -15,7 +15,9 @@ Applicants never get an email. The thank-you page is their confirmation. No serv
 
 ## Email limits
 
-The script can send about **100 emails a day from a regular Gmail account** and about **1,500 a day from Google Workspace**. The limit belongs to the account that deploys the script. Each application uses one email per `NOTIFY_TO` recipient, so keep it to one address.
+The script can send about **100 emails a day from a regular Gmail account** and up to about **1,500 a day from Google Workspace**. The limit belongs to the account that deploys the script. The Foundation's `info@playmakersportsfoundation.org` Workspace account reported **100 a day** when the script was set up on October 21, 2026. Each application uses one email per `NOTIFY_TO` recipient, so keep it to one address.
+
+The live setup is the **2026 Playmakers Cup Scholarship Applications** Sheet in `info@`'s Drive, with its **Scholarship intake** Apps Script deployed as a web app (Execute as: Me, Who has access: Anyone). The form's `action` is that web app's `/exec` URL.
 
 If the limit is reached, applications still save. Their **Staff notified** cell stays `No`, and an hourly job sends one catch-up email listing them once the limit resets (24 hours after the first email that counted toward it).
 
