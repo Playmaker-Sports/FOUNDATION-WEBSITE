@@ -2,4 +2,5 @@
 exclude:
   - apps-script
   - SCHOLARSHIP_SETUP.md
+  - CONTACT_SETUP.md
   - REGISTRATION_SETUP.md

@@ -83,8 +83,17 @@
     .form-group textarea { resize: vertical; min-height: 130px; }
     .form-group select option { background: #1a1a1a; color: var(--white); }
     .form-submit { width: 100%; margin-top: 8px; font-size: 0.9rem; padding: 16px; }
-    .form-success { display: none; background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.3); border-radius: 3px; padding: 24px; text-align: center; margin-top: 20px; }
+    .form-submit:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+    .form-success { background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.3); border-radius: 3px; padding: 24px; text-align: center; margin-top: 20px; }
     .form-success p { color: var(--gold2); font-size: 0.95rem; }
+    .form-success:focus { outline: none; }
+    .form-another { margin-top: 14px; background: none; border: 0; color: var(--gray); font-family: 'Inter', sans-serif; font-size: 0.82rem; text-decoration: underline; cursor: pointer; }
+    .form-another:hover { color: var(--gold2); }
+    .form-error { margin-top: 18px; padding: 14px 16px; border-left: 3px solid #ed9e8f; background: #231411; color: #ffd4cc; font-size: 0.86rem; line-height: 1.6; overflow-wrap: anywhere; }
+    .form-error:focus { outline: none; }
+    .form-notice { margin-bottom: 20px; padding: 14px 16px; border-left: 3px solid var(--gold); background: rgba(201,168,76,0.06); color: rgba(248,248,248,0.7); font-size: 0.86rem; line-height: 1.6; overflow-wrap: anywhere; }
+    .form-notice a { color: var(--gold2); }
+    .honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
     @media(max-width:860px){ .contact-grid{grid-template-columns:1fr;gap:40px;} .form-row{grid-template-columns:1fr;} }
 </style>
 </head>
@@ -132,12 +141,13 @@
     <div class="contact-form-box">
       <h3>Send Us a Message</h3>
       <p class="form-sub">Fill out the form below and we'll get back to you as soon as possible.</p>
-      <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST" id="contactForm">
+      <form action="https://script.google.com/macros/s/AKfycbwqsACQ9LY6I_eP_BZodVyivAkbzY7hozMTeTsZR9ELA1_IRRg0pnjCRk9sCR4hTFktXA/exec" method="post" id="contactForm">
+        <p class="form-notice" id="contactNotice" hidden>This form isn't connected yet. Please email <a href="mailto:info@playmakersportsfoundation.org">info@playmakersportsfoundation.org</a> instead.</p>
         <div class="form-row">
-          <div class="form-group"><label for="fname">First Name</label><input type="text" id="fname" name="first_name" placeholder="First name" required /></div>
-          <div class="form-group"><label for="lname">Last Name</label><input type="text" id="lname" name="last_name" placeholder="Last name" required /></div>
+          <div class="form-group"><label for="fname">First Name</label><input type="text" id="fname" name="first_name" placeholder="First name" maxlength="100" autocomplete="given-name" required /></div>
+          <div class="form-group"><label for="lname">Last Name</label><input type="text" id="lname" name="last_name" placeholder="Last name" maxlength="100" autocomplete="family-name" required /></div>
         </div>
-        <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="your@email.com" required /></div>
+        <div class="form-group"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="your@email.com" maxlength="254" autocomplete="email" required /></div>
         <div class="form-group">
           <label for="subject">I'm interested in...</label>
           <select id="subject" name="subject" required>
@@ -152,25 +162,19 @@
             <option>General Inquiry</option>
           </select>
         </div>
-        <div class="form-group"><label for="message">Message</label><textarea id="message" name="message" placeholder="Tell us how we can help..." required></textarea></div>
+        <div class="form-group"><label for="message">Message</label><textarea id="message" name="message" placeholder="Tell us how we can help..." maxlength="5000" required></textarea></div>
+        <div class="honeypot" aria-hidden="true"><label for="website">Leave this field empty</label><input id="website" name="_honey" type="text" tabindex="-1" autocomplete="off" /></div>
         <button type="submit" class="btn-gold form-submit">Send Message</button>
+        <div class="form-error" id="contactError" role="alert" tabindex="-1" hidden></div>
       </form>
-      <div class="form-success" id="formSuccess"><p>✓ &nbsp;Thank you! Your message has been sent. We'll be in touch soon.</p></div>
+      <div class="form-success" id="formSuccess" role="status" tabindex="-1" hidden>
+        <p>✓ &nbsp;Thank you! Your message has been sent. We'll be in touch soon.</p>
+        <button type="button" class="form-another" id="sendAnother">Send another message</button>
+      </div>
     </div>
   </div>
 </section>
-<script>
-  const form = document.getElementById('contactForm');
-  const success = document.getElementById('formSuccess');
-  if (form) {
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const data = new FormData(form);
-      const res = await fetch(form.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } });
-      if (res.ok) { form.style.display = 'none'; success.style.display = 'block'; }
-    });
-  }
-</script>
+<script src="contact.js?v=20261020-apps-script-1" defer></script>
 
 <footer>
   <div class="footer-top">
