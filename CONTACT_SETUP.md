@@ -15,7 +15,7 @@ Until the form has a web app URL, the page disables the button and asks visitors
 
 ## Email limits
 
-The daily email limit (about **100 a day on a regular Gmail account**, up to about **1,500 on Google Workspace**) belongs to the account that deploys the script. **It is shared with the scholarship script** if the same account deploys both. The Foundation's `info@playmakersportsfoundation.org` account reported **100 a day** on October 21, 2026, shared by both scripts. To protect scholarship emails, the contact script stops sending when 20 or fewer emails are left for the day (`KEEP_FOR_OTHER_EMAILS`).
+The daily email limit (about **100 a day on a regular Gmail account**, up to about **1,500 on Google Workspace**) belongs to the account that deploys the script and is shared by every script that account runs. The Foundation's `info@playmakersportsfoundation.org` account reported **100 a day** on October 21, 2026. The scholarship script sends no email, so the contact form has the whole limit.
 
 The live setup is the **Foundation Contact Messages** Sheet in `info@`'s Drive, with its **Contact form** Apps Script deployed as a web app (Execute as: Me, Who has access: Anyone). The form's `action` is that web app's `/exec` URL.
 

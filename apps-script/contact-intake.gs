@@ -11,10 +11,6 @@
 // Who gets each message. Each address uses one email from the account's daily
 // limit per message, so keep this to one address.
 const NOTIFY_TO = 'info@playmakersportsfoundation.org';
-// The daily email limit is shared by every script this account runs, including
-// the scholarship form. Contact emails stop while fewer than this many are left;
-// the hourly catch-up sends them after the limit resets.
-const KEEP_FOR_OTHER_EMAILS = 20;
 // Most catch-up emails sent per hourly run.
 const CATCH_UP_BATCH = 25;
 
@@ -152,7 +148,7 @@ function save_(contact) {
 // sent, so the catch-up stops instead of trying the rest.
 function notify_(sheet, columns, row, late) {
   try {
-    if (MailApp.getRemainingDailyQuota() <= KEEP_FOR_OTHER_EMAILS) return false;
+    if (MailApp.getRemainingDailyQuota() < 1) return false;
     const cell = header => sheet.getRange(row, columns[header]).getDisplayValue();
     const name = (cell('First name') + ' ' + cell('Last name')).trim();
     const email = cell('Email');

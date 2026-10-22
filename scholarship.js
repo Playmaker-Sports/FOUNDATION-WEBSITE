@@ -31,7 +31,7 @@
     set(key, value) { try { sessionStorage.setItem(key, value); } catch { /* Session storage is optional. */ } },
     remove(key) { try { sessionStorage.removeItem(key); } catch { /* Session storage is optional. */ } }
   };
-  let submissionId = stored.get(idKey) || crypto.randomUUID();
+  const submissionId = stored.get(idKey) || crypto.randomUUID();
   stored.set(idKey, submissionId);
 
   function pacificToday() {
@@ -68,6 +68,26 @@
     statusBox.hidden = true;
     success.hidden = false;
     document.getElementById('application-reference').textContent = reference;
+  }
+
+  // Sends the application, trying again when Google's reply is garbled (right
+  // after a script update it can briefly return an error page or the wrong
+  // reply even though the save worked). Retries reuse the same application ID,
+  // which the script never saves twice.
+  async function send(body, signal) {
+    for (let attempt = 1; ; attempt++) {
+      try {
+        // A text/plain body keeps this a simple cross-site request; Apps Script
+        // cannot answer the preflight that an application/json body triggers.
+        const response = await fetch(endpoint, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body, signal });
+        const result = await response.json().catch(() => ({}));
+        if (result.ok === false || (result.ok === true && result.id === submissionId)) return result;
+        if (attempt >= 3) return {};
+      } catch (error) {
+        if (error.name === 'AbortError' || attempt >= 3) throw error;
+      }
+      await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+    }
   }
 
   function closeApplications() {
@@ -120,12 +140,9 @@
     submit.disabled = true;
     submit.textContent = 'Submitting application…';
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 60000);
+    const timeout = setTimeout(() => controller.abort(), 90000);
     try {
-      // A text/plain body keeps this a simple cross-site request; Apps Script
-      // cannot answer the preflight that an application/json body triggers.
-      const response = await fetch(endpoint, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body:JSON.stringify(payload), signal:controller.signal });
-      const result = await response.json().catch(() => ({}));
+      const result = await send(JSON.stringify(payload), controller.signal);
       if (result.ok !== true || result.id !== submissionId) {
         if (result.closed === true) closeApplications();
         throw new Error(typeof result.message === 'string' && result.message ? result.message : 'Your application could not be saved. Your answers are still here; please try again.');
@@ -147,19 +164,6 @@
     }
   });
 
-  document.getElementById('another-application').addEventListener('click', () => {
-    stored.remove(receivedKey);
-    submissionId = crypto.randomUUID();
-    stored.set(idKey, submissionId);
-    form.reset();
-    errorBox.hidden = true;
-    success.hidden = true;
-    statusBox.hidden = false;
-    updateAgeRequirements();
-    for (const counter of document.querySelectorAll('[data-count-for]')) counter.textContent = '0 words';
-    showAvailability();
-    document.getElementById('application-title').scrollIntoView({ behavior:'smooth', block:'start' });
-  });
   updateAgeRequirements();
   validateExpenses();
   const received = stored.get(receivedKey);

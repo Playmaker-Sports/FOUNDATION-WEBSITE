@@ -4,13 +4,11 @@
  * Playmaker Sports Foundation scholarship intake.
  *
  * The website application form posts each application here. The script saves
- * it as a row in the spreadsheet it is attached to, then emails NOTIFY_TO.
- * Setup and deployment steps are in SCHOLARSHIP_SETUP.md.
+ * it as a row in the spreadsheet it is attached to; staff review that list.
+ * It sends no email, leaving the account's daily email limit for the contact
+ * form. Setup and deployment steps are in SCHOLARSHIP_SETUP.md.
  */
 
-// Who gets the "new application" email. Each address uses one email from the
-// account's daily limit per application, so keep this to one address.
-const NOTIFY_TO = 'info@playmakersportsfoundation.org';
 // Set to false (then deploy a new version) to close applications early.
 const ACCEPTING_APPLICATIONS = true;
 
@@ -59,7 +57,6 @@ const HEADERS = [
   'Future goals', 'Financial need', 'Expenses', 'Additional context',
   'Cup participation confirmed', 'Guardian acknowledgment', 'Accuracy acknowledgment',
   'Privacy acknowledgment', 'Reimbursement acknowledgment', 'Publicity contact OK',
-  'Staff notified',
   'Review status', 'Cup participation verified', 'Financial need reviewed',
   'Selection rationale', 'Approved reimbursement (USD)', 'Receipts/payment record',
 ];
@@ -88,25 +85,6 @@ function doPost(event) {
   }
 }
 
-// Runs every hour (installed by setup). Sends one catch-up email for any
-// application whose email was not sent, for example after the daily limit.
-function sendMissedNotifications() {
-  const lock = LockService.getScriptLock();
-  if (!lock.tryLock(30000)) return;
-  try {
-    const sheet = sheet_();
-    const columns = columns_(sheet);
-    const last = sheet.getLastRow();
-    if (last < 2) return;
-    const flags = sheet.getRange(2, columns['Staff notified'], last - 1, 1).getValues();
-    const pending = [];
-    flags.forEach((flag, index) => { if (flag[0] === 'No') pending.push(index + 2); });
-    if (pending.length) notify_(sheet, columns, pending);
-  } finally {
-    lock.releaseLock();
-  }
-}
-
 // Run once from the Apps Script editor after pasting this script.
 function setup() {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -116,15 +94,9 @@ function setup() {
     sheet.setFrozenRows(1);
   }
   columns_(sheet);
-  for (const trigger of ScriptApp.getProjectTriggers()) {
-    if (trigger.getHandlerFunction() === 'sendMissedNotifications') ScriptApp.deleteTrigger(trigger);
-  }
-  ScriptApp.newTrigger('sendMissedNotifications').timeBased().everyHours(1).create();
-  const remaining = MailApp.getRemainingDailyQuota();
-  console.log('Emails left today: ' + remaining + ' (about 100 a day means a regular Gmail account; about 1,500 means Google Workspace).');
-  MailApp.sendEmail(NOTIFY_TO, 'Scholarship application emails are set up',
-    'New scholarship applications will be emailed to this address.\n\nApplications spreadsheet: ' + sheetUrl_(sheet));
-  console.log('Setup finished. A test email was sent to ' + NOTIFY_TO + '.');
+  // The script runs only when the website posts, so it keeps no scheduled triggers.
+  for (const trigger of ScriptApp.getProjectTriggers()) ScriptApp.deleteTrigger(trigger);
+  console.log('Setup finished. Applications will be saved to the ' + SHEET_NAME + ' tab.');
 }
 
 function save_(application) {
@@ -170,37 +142,13 @@ function save_(application) {
       'Privacy acknowledgment': 'Yes',
       'Reimbursement acknowledgment': 'Yes',
       'Publicity contact OK': yesNo(application.publicity_consent),
-      'Staff notified': 'No',
     };
     for (const header in fields) values[columns[header] - 1] = fields[header];
     sheet.getRange(row, 1, 1, values.length).setValues([values]);
     SpreadsheetApp.flush();
-    // The row is saved; a failed email is retried by sendMissedNotifications.
-    notify_(sheet, columns, [row]);
     return { ok: true, id: application.submission_id };
   } finally {
     lock.releaseLock();
-  }
-}
-
-function notify_(sheet, columns, rows) {
-  try {
-    if (MailApp.getRemainingDailyQuota() < 1) return;
-    const cell = (row, header) => sheet.getRange(row, columns[header]).getDisplayValue();
-    const lines = rows.map(row => '- ' + cell(row, 'Player name') + ' (' + cell(row, 'Grade') + ', ' +
-      cell(row, 'Club and team') + '), submitted ' + cell(row, 'Submitted (Pacific)') + ' Pacific');
-    const single = rows.length === 1;
-    const subject = single
-      ? 'New scholarship application: ' + cell(rows[0], 'Player name')
-      : rows.length + ' scholarship applications you have not been emailed about';
-    const intro = single
-      ? 'A new scholarship application was submitted on the Foundation website.'
-      : 'These scholarship applications were saved, but their emails could not be sent at the time (usually the daily email limit).';
-    MailApp.sendEmail(NOTIFY_TO, subject,
-      intro + '\n\n' + lines.join('\n') + '\n\nOpen the applications spreadsheet: ' + sheetUrl_(sheet));
-    for (const row of rows) sheet.getRange(row, columns['Staff notified']).setValue('Yes');
-  } catch (error) {
-    console.warn('Scholarship notification not sent: ' + error.name);
   }
 }
 
@@ -210,7 +158,7 @@ function validate_(input) {
     const [label, limit, required] = TEXT_FIELDS[field];
     const raw = input[field] === undefined || input[field] === null ? '' : input[field];
     if (typeof raw !== 'string') return { error: 'Please check ' + label + '.' };
-    // Single-line answers end up in email subjects, so flatten any line breaks.
+    // Single-line answers come from one-line inputs, so flatten any line breaks.
     const value = (MULTILINE_FIELDS.includes(field) ? raw : raw.replace(/\s+/g, ' ')).trim();
     if (required && !value) return { error: 'Please complete ' + label + '.' };
     if (value.length > limit) return { error: 'Please shorten ' + label + '.' };
@@ -290,10 +238,6 @@ function columns_(sheet) {
   const missing = HEADERS.filter(header => !found[header]);
   if (missing.length) throw new Error('The ' + SHEET_NAME + ' tab is missing these column headers: ' + missing.join(', '));
   return found;
-}
-
-function sheetUrl_(sheet) {
-  return SpreadsheetApp.getActiveSpreadsheet().getUrl() + '#gid=' + sheet.getSheetId();
 }
 
 // A leading apostrophe stores the answer as plain text, so an answer that

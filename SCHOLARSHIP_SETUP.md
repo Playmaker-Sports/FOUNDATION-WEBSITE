@@ -8,30 +8,21 @@
 
 1. checks the answers and the deadline,
 2. adds one row to the **Applications** tab (a retry with the same application ID is not saved twice),
-3. emails `NOTIFY_TO` a short "new application" notice with a link to the Sheet,
-4. replies to the page, which then goes to the thank-you page. If the save fails, the applicant sees an error and their answers stay in the form.
+3. replies to the page, which then goes to the thank-you page. If the save fails, the applicant sees an error and their answers stay in the form.
 
-Applicants never get an email. The thank-you page is their confirmation. No server, Render service, or API key is involved.
-
-## Email limits
-
-The script can send about **100 emails a day from a regular Gmail account** and up to about **1,500 a day from Google Workspace**. The limit belongs to the account that deploys the script. The Foundation's `info@playmakersportsfoundation.org` Workspace account reported **100 a day** when the script was set up on October 21, 2026. Each application uses one email per `NOTIFY_TO` recipient, so keep it to one address.
+**No emails are sent**, to staff or applicants. Staff review new applications in the Sheet, and the thank-you page is the applicant's confirmation. Sending no email leaves the account's whole daily email limit (100 a day for `info@playmakersportsfoundation.org`) for the contact form. No server, Render service, or API key is involved.
 
 The live setup is the **2026 Playmakers Cup Scholarship Applications** Sheet in `info@`'s Drive, with its **Scholarship intake** Apps Script deployed as a web app (Execute as: Me, Who has access: Anyone). The form's `action` is that web app's `/exec` URL.
-
-If the limit is reached, applications still save. Their **Staff notified** cell stays `No`, and an hourly job sends one catch-up email listing them once the limit resets (24 hours after the first email that counted toward it).
-
-To check the limit at any time, open the script, add a function with `Logger.log(MailApp.getRemainingDailyQuota());`, and click **Run**. `setup()` also logs it.
 
 ## One-time setup
 
 1. Sign in to the Google Workspace account that should own the applications. Create a new Google Sheet in its Drive and keep sharing **Restricted** to Foundation reviewers.
-2. In the Sheet, open **Extensions → Apps Script**. Replace the editor contents with `apps-script/scholarship-intake.gs`, and check `NOTIFY_TO` at the top.
-3. Select `setup` in the function menu and click **Run**. Approve the permissions (sending email as you, this spreadsheet, and running on a schedule). Setup creates the **Applications** tab with its headers, installs the hourly catch-up job, logs the daily email limit, and sends a test email to `NOTIFY_TO`.
+2. In the Sheet, open **Extensions → Apps Script** and replace the editor contents with `apps-script/scholarship-intake.gs`.
+3. Select `setup` in the function menu and click **Run**, then approve the permissions. Setup creates the **Applications** tab with its headers.
 4. Click **Deploy → New deployment → Web app**. Set **Execute as: Me** and **Who has access: Anyone**, then click **Deploy** and copy the URL that ends in `/exec`. If **Anyone** isn't offered, a Workspace admin needs to allow web apps to be shared outside the organization.
 5. Open the `/exec` URL in a browser. It should show `{"ok":true,"accepting_applications":true}`.
 6. Put the URL in the `action` attribute of the form in `scholarship-application.html`, then publish the website.
-7. Submit one clearly fake application on the live page (for example, player name "TEST ONLY"). Confirm the row, the email, and the thank-you page, then delete the test row.
+7. Submit one clearly fake application on the live page (for example, player name "TEST ONLY"). Confirm the row and the thank-you page, then delete the test row.
 
 Column headers can be moved, and staff can add their own columns. Don't rename or delete the script's headers, or new applications stop saving.
 
