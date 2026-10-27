@@ -70,17 +70,13 @@ function doPost(event) {
   try {
     const input = parse_(event);
     if (!input) return reply_({ ok: false, message: 'Your application could not be read. Please try again.' });
+    if (typeof input._honey === 'string' && input._honey.trim()) {
+      // Only bots fill the hidden field. Tell them it worked and save nothing.
+      return reply_({ ok: true, id: String(input.submission_id || '') });
+    }
     if (!accepting_()) return reply_({ ok: false, closed: true, message: CLOSED_MESSAGE });
     const checked = validate_(input);
-    // Error messages name a field but never contain answers, so they are safe to log.
-    if (checked.error) {
-      console.log('Application turned away: ' + checked.error);
-      return reply_({ ok: false, message: checked.error });
-    }
-    // Bots fill the hidden field, but so can a person's autofill. Save the
-    // application anyway and mark it for staff instead of losing it.
-    checked.application.possible_spam = typeof input._honey === 'string' && input._honey.trim() !== '';
-    if (checked.application.possible_spam) console.log('Application saved with the hidden field filled; marked as possible spam.');
+    if (checked.error) return reply_({ ok: false, message: checked.error });
     return reply_(save_(checked.application));
   } catch (error) {
     // Never log the error message: it can contain applicant answers.
@@ -146,7 +142,6 @@ function save_(application) {
       'Privacy acknowledgment': 'Yes',
       'Reimbursement acknowledgment': 'Yes',
       'Publicity contact OK': yesNo(application.publicity_consent),
-      'Review status': application.possible_spam ? 'Possible spam (hidden field was filled)' : '',
     };
     for (const header in fields) values[columns[header] - 1] = fields[header];
     sheet.getRange(row, 1, 1, values.length).setValues([values]);
