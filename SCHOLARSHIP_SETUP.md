@@ -34,7 +34,9 @@ To close applications early, set `ACCEPTING_APPLICATIONS = false` and deploy a n
 
 ## Spam
 
-A hidden field catches basic bots: the script replies "saved" and stores nothing. The script also checks every answer itself. If real spam shows up, add Cloudflare Turnstile to the form and check its token in the script.
+A hidden field catches basic bots. A person's autofill can fill it too, so an application with that field filled is still saved, with **Review status** set to `Possible spam (hidden field was filled)`.
+
+The script also checks every answer itself. Rejected applications are logged by reason (never their answers) under **Executions** in the Apps Script project. If real spam shows up, add Cloudflare Turnstile to the form and check its token in the script.
 
 ## Agreed award rules
 

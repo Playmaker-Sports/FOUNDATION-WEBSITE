@@ -50,12 +50,16 @@ function doPost(event) {
   try {
     const input = parse_(event);
     if (!input) return reply_({ ok: false, message: 'Your message could not be read. Please try again.' });
-    if (typeof input._honey === 'string' && input._honey.trim()) {
-      // Only bots fill the hidden field. Tell them it worked and save nothing.
-      return reply_({ ok: true, id: String(input.submission_id || '') });
-    }
     const checked = validate_(input);
-    if (checked.error) return reply_({ ok: false, message: checked.error });
+    // Error messages name a field but never contain the message, so they are safe to log.
+    if (checked.error) {
+      console.log('Message turned away: ' + checked.error);
+      return reply_({ ok: false, message: checked.error });
+    }
+    // Bots fill the hidden field, but so can a person's autofill. Save the
+    // message anyway, marked for staff and without an email, instead of losing it.
+    checked.contact.possible_spam = typeof input._honey === 'string' && input._honey.trim() !== '';
+    if (checked.contact.possible_spam) console.log('Message saved with the hidden field filled; marked as possible spam.');
     return reply_(save_(checked.contact));
   } catch (error) {
     // Never log the error message: it can contain the sender's message.
@@ -130,14 +134,15 @@ function save_(contact) {
       'Email': text_(contact.email),
       'Topic': text_(contact.subject),
       'Message': text_(contact.message),
-      'Staff notified': 'No',
-      'Status': 'New',
+      // Possible spam is not emailed, so bots can't use up the daily email limit.
+      'Staff notified': contact.possible_spam ? 'Skipped (possible spam)' : 'No',
+      'Status': contact.possible_spam ? 'Possible spam' : 'New',
     };
     for (const header in fields) values[columns[header] - 1] = fields[header];
     sheet.getRange(row, 1, 1, values.length).setValues([values]);
     SpreadsheetApp.flush();
     // The row is saved; a failed email is retried by sendMissedNotifications.
-    notify_(sheet, columns, row, false);
+    if (!contact.possible_spam) notify_(sheet, columns, row, false);
     return { ok: true, id: contact.submission_id };
   } finally {
     lock.releaseLock();
