@@ -19,7 +19,7 @@
         /^\/(?:a\/macros\/[^/]+|macros)\/s\/[\w-]+\/exec$/.test(url.pathname) ? url.href : null;
     } catch { return null; }
   })();
-  const deadlineExclusive = Date.parse('2026-11-21T00:00:00-08:00');
+  const deadlineExclusive = Date.parse('2026-11-23T00:00:00-08:00');
   const closedMessage = 'Applications closed on November 22, 2026, at 11:59 p.m. Pacific.';
   const idKey = 'foundation-cup-2026-submission-id';
   const receivedKey = 'foundation-cup-2026-received-id';

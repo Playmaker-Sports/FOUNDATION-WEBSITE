@@ -15,7 +15,7 @@ const ACCEPTING_APPLICATIONS = true;
 const SHEET_NAME = 'Applications';
 const TIME_ZONE = 'America/Los_Angeles';
 // First moment applications are closed: November 21, 2026, 12:00 a.m. Pacific.
-const CLOSES_AT = new Date('2026-11-21T00:00:00-08:00');
+const CLOSES_AT = new Date('2026-11-23T00:00:00-08:00');
 const CLOSED_MESSAGE = 'Applications closed on November 22, 2026, at 11:59 p.m. Pacific.';
 const GRADES = ['6th grade', '7th grade', '8th grade', '9th grade', '10th grade', '11th grade', '12th grade'];
 const EXPENSES = ['Club soccer fees', 'Soccer equipment'];
