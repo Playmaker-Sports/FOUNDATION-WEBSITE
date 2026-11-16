@@ -16,7 +16,7 @@ const SHEET_NAME = 'Applications';
 const TIME_ZONE = 'America/Los_Angeles';
 // First moment applications are closed: November 21, 2026, 12:00 a.m. Pacific.
 const CLOSES_AT = new Date('2026-11-21T00:00:00-08:00');
-const CLOSED_MESSAGE = 'Applications closed on November 20, 2026, at 11:59 p.m. Pacific.';
+const CLOSED_MESSAGE = 'Applications closed on November 22, 2026, at 11:59 p.m. Pacific.';
 const GRADES = ['6th grade', '7th grade', '8th grade', '9th grade', '10th grade', '11th grade', '12th grade'];
 const EXPENSES = ['Club soccer fees', 'Soccer equipment'];
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -70,17 +70,13 @@ function doPost(event) {
   try {
     const input = parse_(event);
     if (!input) return reply_({ ok: false, message: 'Your application could not be read. Please try again.' });
+    if (typeof input._honey === 'string' && input._honey.trim()) {
+      // Only bots fill the hidden field. Tell them it worked and save nothing.
+      return reply_({ ok: true, id: String(input.submission_id || '') });
+    }
     if (!accepting_()) return reply_({ ok: false, closed: true, message: CLOSED_MESSAGE });
     const checked = validate_(input);
-    // Error messages name a field but never contain answers, so they are safe to log.
-    if (checked.error) {
-      console.log('Application turned away: ' + checked.error);
-      return reply_({ ok: false, message: checked.error });
-    }
-    // Bots fill the hidden field, but so can a person's autofill. Save the
-    // application anyway and mark it for staff instead of losing it.
-    checked.application.possible_spam = typeof input._honey === 'string' && input._honey.trim() !== '';
-    if (checked.application.possible_spam) console.log('Application saved with the hidden field filled; marked as possible spam.');
+    if (checked.error) return reply_({ ok: false, message: checked.error });
     return reply_(save_(checked.application));
   } catch (error) {
     // Never log the error message: it can contain applicant answers.
@@ -146,7 +142,6 @@ function save_(application) {
       'Privacy acknowledgment': 'Yes',
       'Reimbursement acknowledgment': 'Yes',
       'Publicity contact OK': yesNo(application.publicity_consent),
-      'Review status': application.possible_spam ? 'Possible spam (hidden field was filled)' : '',
     };
     for (const header in fields) values[columns[header] - 1] = fields[header];
     sheet.getRange(row, 1, 1, values.length).setValues([values]);

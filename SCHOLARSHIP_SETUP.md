@@ -34,16 +34,14 @@ To close applications early, set `ACCEPTING_APPLICATIONS = false` and deploy a n
 
 ## Spam
 
-A hidden field catches basic bots. A person's autofill can fill it too, so an application with that field filled is still saved, with **Review status** set to `Possible spam (hidden field was filled)`.
-
-The script also checks every answer itself. Rejected applications are logged by reason (never their answers) under **Executions** in the Apps Script project. If real spam shows up, add Cloudflare Turnstile to the form and check its token in the script.
+A hidden field catches basic bots: the script replies "saved" and stores nothing. The script also checks every answer itself. If real spam shows up, add Cloudflare Turnstile to the form and check its token in the script.
 
 ## Agreed award rules
 
 - One need-based recipient receives reimbursement of up to $500 for paid club soccer fees or soccer equipment/gear.
 - Applicants must currently be in grades 6–12 and be registered players participating with a team in the 2026 Playmakers Cup. Verify participation against tournament records. There is no separate age cutoff.
 - For applicants under 18, guardian name, email, and acknowledgment are required; the applicant's own email is optional. Adults must provide their own email.
-- Applications close **November 20, 2026, at 11:59 p.m. Pacific** (`America/Los_Angeles`).
+- Applications close **November 22, 2026, at 11:59 p.m. Pacific** (`America/Los_Angeles`).
 - **A selection date has not been set.** Do not invent an announcement, decision, or payment date.
 - Selection is based on demonstrated financial need and the application. Receipts substantiate expenses, not financial need. Do not require tax returns, bank statements, SSNs, or receipt uploads with the application.
 - Only the selected recipient supplies receipts before reimbursement. Pay the smaller of $500 or eligible documented expenses; a guardian handles payment for a minor.

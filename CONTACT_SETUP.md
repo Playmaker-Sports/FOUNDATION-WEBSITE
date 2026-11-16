@@ -47,6 +47,4 @@ To change the topic list, edit it in both `contact.html` and `TOPICS` in the scr
 
 ## Spam
 
-A hidden field catches basic bots. A person's autofill can fill it too, so a message with that field filled is still saved, with **Status** set to `Possible spam` and **Staff notified** set to `Skipped (possible spam)`. It is not emailed, so bots can't use up the daily limit. Check those rows now and then for real messages.
-
-The script also checks every field itself. Rejected messages are logged by reason (never their contents) under **Executions** in the Apps Script project. If real spam shows up, add Cloudflare Turnstile to the form and check its token in the script.
+A hidden field catches basic bots: the script replies "sent" and stores nothing. The script also checks every field itself. If real spam shows up, add Cloudflare Turnstile to the form and check its token in the script.

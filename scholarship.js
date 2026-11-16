@@ -20,7 +20,7 @@
     } catch { return null; }
   })();
   const deadlineExclusive = Date.parse('2026-11-21T00:00:00-08:00');
-  const closedMessage = 'Applications closed on November 20, 2026, at 11:59 p.m. Pacific.';
+  const closedMessage = 'Applications closed on November 22, 2026, at 11:59 p.m. Pacific.';
   const idKey = 'foundation-cup-2026-submission-id';
   const receivedKey = 'foundation-cup-2026-received-id';
   let accepting = false;
@@ -108,7 +108,7 @@
     } else {
       accepting = true;
       submit.disabled = false;
-      statusMessage.textContent = 'Apply by November 20, 2026, at 11:59 p.m. Pacific. No receipt uploads are needed with your application.';
+      statusMessage.textContent = 'Apply by November 22, 2026, at 11:59 p.m. Pacific. No receipt uploads are needed with your application.';
     }
   }
 
